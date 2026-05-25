@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { readJsonFile } from '@/lib/fileStorage';
 import { verifyAuth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request) {
   try {
@@ -15,18 +15,38 @@ export async function GET(request) {
     const limit = parseInt(searchParams.get('limit')) || 50;
     const offset = parseInt(searchParams.get('offset')) || 0;
 
-    // Get all attendance records
-    const allRecords = await readJsonFile('attendance.json');
+    // Fetch records and count from database using Prisma
+    const records = await prisma.attendance.findMany({
+      orderBy: { timestamp: 'desc' },
+      skip: offset,
+      take: limit,
+    });
 
-    // Sort by timestamp descending
-    allRecords.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    const total = await prisma.attendance.count();
 
-    // Apply pagination
-    const paginatedRecords = allRecords.slice(offset, offset + limit);
+    // Map database fields to the structure expected by the frontend
+    const mappedRecords = records.map((r) => ({
+      id: r.id,
+      staffId: r.staffId,
+      staffName: r.staffName,
+      timestamp: r.timestamp.toISOString(),
+      currentLocation: {
+        latitude: r.currentLat,
+        longitude: r.currentLon,
+        accuracy: r.accuracy,
+      },
+      workLocation: {
+        latitude: r.workLat,
+        longitude: r.workLon,
+      },
+      distanceFromWork: r.distanceFromWork,
+      status: r.status,
+      remarks: r.remarks,
+    }));
 
     return NextResponse.json({
-      records: paginatedRecords,
-      total: allRecords.length,
+      records: mappedRecords,
+      total,
       limit,
       offset,
     });

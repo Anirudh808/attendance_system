@@ -1,0 +1,36 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Staff {
+  id           String       @id
+  name         String
+  email        String       @unique
+  password     String
+  department   String
+  workLat      Float
+  workLon      Float
+  workAddress  String
+  attendance   Attendance[]
+}
+
+model Attendance {
+  id               String   @id
+  staffId          String
+  staffName        String
+  timestamp        DateTime @default(now())
+  currentLat       Float
+  currentLon       Float
+  accuracy         Float    @default(0.0)
+  workLat          Float
+  workLon          Float
+  distanceFromWork Float
+  status           String
+  remarks          String
+  staff            Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+}

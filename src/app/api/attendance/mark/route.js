@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { readJsonFile, appendToJsonFile } from '@/lib/fileStorage';
 import { calculateDistance, isWithinRadius } from '@/lib/geolocation';
 import { verifyAuth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 const ATTENDANCE_RADIUS_METERS = Number(process.env.ATTENDANCE_RADIUS_METERS) || 50;
 
@@ -27,20 +27,18 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid coordinates' }, { status: 400 });
     }
 
-    // Get staff data to find work location
-    const staffList = await readJsonFile('staff.json');
-    const staff = staffList.find((s) => s.id === staffId);
+    // Get staff data from PostgreSQL database
+    const staff = await prisma.staff.findUnique({
+      where: { id: staffId },
+    });
 
     if (!staff) {
       return NextResponse.json({ error: 'Staff record not found' }, { status: 404 });
     }
 
-    if (!staff.workLocation) {
-      return NextResponse.json({ error: 'Staff work location not configured' }, { status: 400 });
-    }
-
     // Calculate distance from work location
-    const { latitude: workLat, longitude: workLon } = staff.workLocation;
+    const workLat = staff.workLat;
+    const workLon = staff.workLon;
     
     // Default accuracy to 0 if not provided
     const gpsAccuracy = accuracy || 0;
@@ -58,35 +56,33 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
-    // Create attendance record
-    const attendanceRecord = {
-      id: `ATT-${Date.now()}`,
-      staffId,
-      staffName: staff.name,
-      timestamp: timestamp || new Date().toISOString(),
-      currentLocation: {
-        latitude,
-        longitude,
-        accuracy: gpsAccuracy,
-      },
-      workLocation: {
-        latitude: workLat,
-        longitude: workLon,
-      },
-      distanceFromWork: parseFloat(distance.toFixed(2)),
-      status: 'PRESENT',
-      remarks: 'Within work location radius',
-    };
+    const recordId = `ATT-${Date.now()}`;
+    const dateVal = timestamp ? new Date(timestamp) : new Date();
 
-    // Save attendance record
-    await appendToJsonFile('attendance.json', attendanceRecord);
+    // Create attendance record in database
+    await prisma.attendance.create({
+      data: {
+        id: recordId,
+        staffId,
+        staffName: staff.name,
+        timestamp: dateVal,
+        currentLat: latitude,
+        currentLon: longitude,
+        accuracy: gpsAccuracy,
+        workLat,
+        workLon,
+        distanceFromWork: parseFloat(distance.toFixed(2)),
+        status: 'PRESENT',
+        remarks: 'Within work location radius',
+      },
+    });
 
     return NextResponse.json({
       success: true,
       message: 'Attendance marked as PRESENT',
       distance: parseFloat(distance.toFixed(2)),
-      status: attendanceRecord.status,
-      recordId: attendanceRecord.id,
+      status: 'PRESENT',
+      recordId: recordId,
     });
   } catch (error) {
     console.error('Mark attendance error:', error);

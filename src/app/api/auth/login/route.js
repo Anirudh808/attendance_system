@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { readJsonFile } from '@/lib/fileStorage';
+import { prisma } from '@/lib/prisma';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
@@ -14,11 +14,10 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Staff ID and password are required' }, { status: 400 });
     }
 
-    // Get staff data
-    const staffList = await readJsonFile('staff.json');
-
-    // Find staff with matching ID
-    const staff = staffList.find((s) => s.id === staffId);
+    // Query staff record using Prisma
+    const staff = await prisma.staff.findUnique({
+      where: { id: staffId },
+    });
 
     if (!staff) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
@@ -49,7 +48,11 @@ export async function POST(request) {
         name: staff.name,
         email: staff.email,
         department: staff.department,
-        workLocation: staff.workLocation,
+        workLocation: {
+          latitude: staff.workLat,
+          longitude: staff.workLon,
+          address: staff.workAddress,
+        },
       },
     });
   } catch (error) {

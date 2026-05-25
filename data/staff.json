@@ -1,0 +1,62 @@
+[
+  {
+    "id": "EMP001",
+    "name": "John Doe",
+    "email": "john.doe@company.com",
+    "password": "password123",
+    "department": "Engineering",
+    "workLocation": {
+      "latitude": 11.040470,
+      "longitude": 77.038480,
+      "address": "Coimbatore Office"
+    }
+  },
+  {
+    "id": "EMP002",
+    "name": "Jane Smith",
+    "email": "jane.smith@company.com",
+    "password": "password456",
+    "department": "Marketing",
+    "workLocation": {
+      "latitude": 34.0522,
+      "longitude": -118.2437,
+      "address": "Los Angeles Office"
+    }
+  },
+  {
+    "id": "EMP003",
+    "name": "Bob Johnson",
+    "email": "bob.johnson@company.com",
+    "password": "password789",
+    "department": "Sales",
+    "workLocation": {
+      "latitude": 41.8781,
+      "longitude": -87.6298,
+      "address": "Chicago Office"
+    }
+  },
+  {
+    "id": "EMP004",
+    "name": "Alice Williams",
+    "email": "alice.williams@company.com",
+    "password": "password000",
+    "department": "HR",
+    "workLocation": {
+      "latitude": 29.7604,
+      "longitude": -95.3698,
+      "address": "Houston Office"
+    }
+  },
+  {
+    "id": "EMP005",
+    "name": "Charlie Brown",
+    "email": "charlie.brown@company.com",
+    "password": "password111",
+    "department": "Engineering",
+    "workLocation": {
+      "latitude": 37.7749,
+      "longitude": -122.4194,
+      "address": "San Francisco Office"
+    }
+  }
+]

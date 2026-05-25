@@ -1,0 +1,139 @@
+.dashboard-container {
+  width: 100%;
+  min-height: 100vh;
+  background: #f5f7fa;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-header {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.header-content h1 {
+  font-size: 24px;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.header-content p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.logout-button {
+  padding: 8px 16px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.dashboard-nav {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  gap: 0;
+  padding: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nav-button {
+  flex: 1;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.nav-button:hover {
+  color: #3b82f6;
+  background: #f9fafb;
+}
+
+.nav-button.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 15px;
+  }
+
+  .header-content h1 {
+    font-size: 20px;
+  }
+
+  .dashboard-nav {
+    overflow-x: scroll;
+  }
+
+  .nav-button {
+    padding: 12px 15px;
+    font-size: 13px;
+  }
+
+  .dashboard-content {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .logout-button {
+    width: 100%;
+  }
+
+  .header-content h1 {
+    font-size: 18px;
+  }
+
+  .dashboard-nav {
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .nav-button {
+    padding: 12px 10px;
+    font-size: 12px;
+    min-width: 70px;
+  }
+
+  .dashboard-content {
+    padding: 10px;
+  }
+}

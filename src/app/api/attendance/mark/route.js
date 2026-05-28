@@ -4,6 +4,7 @@ import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { calculateDistance, isWithinRadius } from '@/lib/geolocation';
 import { verifyAuth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { sendFaceMismatchEmail } from '@/lib/mail';
 
 const ATTENDANCE_RADIUS_METERS = Number(process.env.ATTENDANCE_RADIUS_METERS) || 50;
 
@@ -77,7 +78,7 @@ let profileImageUrl;
 try {
     const getObjectCommand = new GetObjectCommand({
     Bucket: process.env.S3_BUCKET_NAME,
-    Key: `b2of/${staffId}.jpg`,
+    Key: `b2of/${staff.id}.jpg`,
     });
     profileImageUrl = await getSignedUrl(s3Client, getObjectCommand, { expiresIn: 3600 });
 } catch (s3Error) {
@@ -136,6 +137,22 @@ try {
     console.log('Face comparison result:', compareResult);
 
     if (!compareResponse.ok) {
+      // Trigger the face mismatch/error email pipeline asynchronously (non-blocking)
+      sendFaceMismatchEmail({
+        staff,
+        capturedImageBuffer,
+        profileImageBuffer,
+        timestamp,
+        accuracy: gpsAccuracy,
+        latitude,
+        longitude,
+        distance,
+        aiResponse: compareResult,
+        errorMessage: compareResult.error || compareResult.message || 'Face comparison service returned an error response'
+      }).catch((mailError) => {
+        console.error('Failed to send email notification on verification failure in background:', mailError);
+      });
+
       return NextResponse.json({
         error: 'Face verification failed',
         message: compareResult.message || 'Face comparison service returned an error',
@@ -144,6 +161,22 @@ try {
     }
 
     if (!compareResult.is_same_person || compareResult.similarity_percentage < 40) {
+      // Trigger the face mismatch email pipeline asynchronously (non-blocking)
+      sendFaceMismatchEmail({
+        staff,
+        capturedImageBuffer,
+        profileImageBuffer,
+        timestamp,
+        accuracy: gpsAccuracy,
+        latitude,
+        longitude,
+        distance,
+        aiResponse: compareResult,
+        errorMessage: compareResult.message || 'Face comparison similarity score is below the required threshold'
+      }).catch((mailError) => {
+        console.error('Failed to send email notification on face mismatch in background:', mailError);
+      });
+
       return NextResponse.json({
         error: 'Face mismatch',
         message: 'Your face does not match the registered profile image. Attendance not marked.',

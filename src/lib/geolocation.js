@@ -7,19 +7,23 @@
  * @returns {number} Distance in meters
  */
 export const calculateDistance = (lat1, lon1, lat2, lon2) => {
-  const R = 6371000; // Earth's radius in meters
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-
-  const c = 2 * Math.asin(Math.sqrt(a));
-  return R * c; // Distance in meters
+  // distance between latitudes
+  // and longitudes
+  let dLat = (lat2 - lat1) * Math.PI / 180.0;
+  let dLon = (lon2 - lon1) * Math.PI / 180.0;
+    
+  // convert to radiansa
+  lat1 = (lat1) * Math.PI / 180.0;
+  lat2 = (lat2) * Math.PI / 180.0;
+  
+  // apply formulae
+  let a = Math.pow(Math.sin(dLat / 2), 2) + 
+          Math.pow(Math.sin(dLon / 2), 2) * 
+          Math.cos(lat1) * 
+          Math.cos(lat2);
+  let rad = 6371000; // Radius of earth in meters
+  let c = 2 * Math.asin(Math.sqrt(a));
+  return rad * c;
 };
 
 /**

@@ -41,12 +41,14 @@ export const login = (staffId, password) => {
   return apiClient.post('/auth/login', { staffId, password });
 };
 
-export const markAttendance = (latitude, longitude, timestamp, accuracy) => {
+export const markAttendance = (latitude, longitude, timestamp, accuracy, capturedImage) => {
+  console.log(capturedImage);
   return apiClient.post('/attendance/mark', {
     latitude,
     longitude,
     timestamp: timestamp || new Date().toISOString(),
     accuracy,
+    capturedImage,
   });
 };
 

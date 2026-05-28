@@ -8,15 +8,16 @@ generator client {
 }
 
 model Staff {
-  id           String       @id
-  name         String
-  email        String       @unique
-  password     String
-  department   String
-  workLat      Float
-  workLon      Float
-  workAddress  String
-  attendance   Attendance[]
+  id            String       @id
+  name          String
+  email         String       @unique
+  password      String
+  department    String
+  profile_image String
+  workLat       Float
+  workLon       Float
+  workAddress   String
+  attendance    Attendance[]
 }
 
 model Attendance {

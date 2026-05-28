@@ -143,7 +143,7 @@ try {
       }, { status: 502 });
     }
 
-    if (!compareResult.is_same_person) {
+    if (!compareResult.is_same_person || compareResult.similarity_percentage < 40) {
       return NextResponse.json({
         error: 'Face mismatch',
         message: 'Your face does not match the registered profile image. Attendance not marked.',

@@ -77,7 +77,7 @@ let profileImageUrl;
 try {
     const getObjectCommand = new GetObjectCommand({
     Bucket: process.env.S3_BUCKET_NAME,
-    Key: `b2of/AS25-02.jpg`,
+    Key: `b2of/${staffId}.jpg`,
     });
     profileImageUrl = await getSignedUrl(s3Client, getObjectCommand, { expiresIn: 3600 });
 } catch (s3Error) {

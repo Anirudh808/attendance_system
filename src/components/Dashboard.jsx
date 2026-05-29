@@ -8,6 +8,7 @@ import Profile from './Profile';
 
 export default function Dashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('mark');
+  const [menuOpen, setMenuOpen] = useState(false);
   console.log('User in Dashboard:', user); // Debugging line to check user data
   
   return (
@@ -17,7 +18,38 @@ export default function Dashboard({ user, onLogout }) {
           <h1>Welcome, {user?.name}</h1>
           <p>{user?.department} • {user?.email}</p>
         </div>
+        
+        {/* Desktop static logout button */}
         <button onClick={onLogout} className="logout-button">Logout</button>
+
+        {/* Mobile Hamburger menu container */}
+        <div className="menu-container">
+          <button
+            className={`hamburger-button ${menuOpen ? 'open' : ''}`}
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+          >
+            <span className="bar"></span>
+            <span className="bar"></span>
+            <span className="bar"></span>
+          </button>
+          
+          {menuOpen && (
+            <>
+              <div className="menu-backdrop" onClick={() => setMenuOpen(false)} />
+              <div className="dropdown-menu">
+                <div className="dropdown-user-info">
+                  <strong>{user?.name}</strong>
+                  <span>{user?.email}</span>
+                </div>
+                <hr className="dropdown-divider" />
+                <button onClick={onLogout} className="dropdown-logout-button">
+                  Logout
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="dashboard-nav">

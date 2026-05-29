@@ -50,8 +50,8 @@
 }
 
 .location-box {
-  background: #f0fdf4;
-  border-color: #86efac;
+  background: #fbfbfb;
+  border-color: #6d6d6d;
 }
 
 .location-box h3 {
@@ -147,6 +147,43 @@
   cursor: not-allowed;
 }
 
+.capture-button {
+  width: 85%;
+  max-width: 320px;
+  padding: 16px 28px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
+  outline: none;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+.capture-button:hover:not(:disabled) {
+  transform: scale(1.04) translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+}
+
+.capture-button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.capture-button:disabled {
+  background: #e5e7eb;
+  border: 1px solid #d1d5db;
+  box-shadow: none;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
 .success-button {
   background: #10b981;
   color: white;
@@ -211,20 +248,43 @@
   line-height: 1.5;
 }
 
+.camera-location-status {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  background: #f3f4f6;
+  border-radius: 20px;
+  width: fit-content;
+  margin: 0 auto 15px;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+.camera-frozen {
+  filter: brightness(0.9);
+}
+
 @media (max-width: 480px) {
+  .mark-attendance-container {
+    padding: 10px 0;
+  }
+
   .mark-card {
     padding: 15px;
     max-width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   }
 
   .mark-card h2 {
     font-size: 18px;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
   }
 
   .button-group {
     flex-direction: column;
     gap: 8px;
+    margin: 12px 0;
   }
 
   .button-group button {
@@ -233,15 +293,72 @@
   }
 
   .info-box {
-    padding: 12px;
-    margin-bottom: 12px;
+    padding: 10px;
+    margin-bottom: 8px;
   }
 
   .info-box h3 {
-    font-size: 13px;
+    font-size: 12px;
+    margin-bottom: 4px;
   }
 
   .info-box p {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .info-box small {
+    font-size: 11px;
+  }
+
+  .success-box {
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+
+  .success-box h4 {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .success-box p {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  .success-box small {
+    font-size: 11px;
+  }
+
+  .camera-video {
+    height: 240px; /* Reduced from 320px */
+    border-radius: 12px;
+  }
+
+  .portal-overlay {
+    width: 160px; /* Reduced from 220px */
+    height: 160px; /* Reduced from 220px */
+  }
+
+  .camera-instructions {
+    margin: 8px 0 12px;
+    font-size: 12px;
+  }
+
+  .camera-location-status {
+    margin-bottom: 10px;
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+
+  .info-text {
+    padding: 10px;
+    font-size: 11px;
+  }
+
+  .capture-button {
+    padding: 12px 24px;
     font-size: 14px;
+    width: 90%;
   }
 }

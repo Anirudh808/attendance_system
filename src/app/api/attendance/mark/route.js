@@ -1,25 +1,20 @@
 import { NextResponse } from 'next/server';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { calculateDistance, isWithinRadius } from '@/lib/geolocation';
 import { verifyAuth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { s3Service } from '@/services/server/s3Service';
+import { faceComparisonService } from '@/services/server/faceComparisonService';
+import { attendanceService } from '@/services/server/attendanceService';
 import { sendFaceMismatchEmail } from '@/lib/mail';
 
-const ATTENDANCE_RADIUS_METERS = Number(process.env.ATTENDANCE_RADIUS_METERS) || 50;
-
-// Initialize S3 Client
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
-
+/**
+ * API Handler for marking attendance with location and face verification.
+ * Decouples logic into helper services: s3Service, faceComparisonService, and attendanceService.
+ *
+ * @param {Request} request - NextJS request object
+ * @returns {Promise<NextResponse>} API response with operation status
+ */
 export async function POST(request) {
   try {
-    // Authenticate token
+    // 1. Authenticate token
     const user = verifyAuth(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized: Invalid or expired token' }, { status: 401 });
@@ -29,7 +24,7 @@ export async function POST(request) {
     const body = await request.json().catch(() => ({}));
     const { latitude, longitude, timestamp, accuracy, capturedImage } = body;
 
-    // Validate input
+    // 2. Validate inputs
     if (latitude === undefined || longitude === undefined) {
       return NextResponse.json({ error: 'Latitude and longitude are required' }, { status: 400 });
     }
@@ -43,73 +38,35 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid coordinates' }, { status: 400 });
     }
 
-    // Get staff data from PostgreSQL database
-    const staff = await prisma.staff.findUnique({
-      where: { id: staffId },
-    });
-
+    // 3. Retrieve staff details
+    const staff = await attendanceService.getStaffById(staffId);
     if (!staff) {
       return NextResponse.json({ error: 'Staff record not found' }, { status: 404 });
     }
 
-    // Calculate distance from work location
-    const workLat = staff.workLat;
-    const workLon = staff.workLon;
-    
-    // Default accuracy to 0 if not provided
+    // 4. Verify work location radius
     const gpsAccuracy = accuracy || 0;
-    const distance = Math.max(0, calculateDistance(latitude, longitude, workLat, workLon) - gpsAccuracy);
+    const { distance, isWithinWorkRadius } = attendanceService.verifyWorkRadius(
+      latitude,
+      longitude,
+      staff,
+      gpsAccuracy
+    );
 
-    // Check if within work radius
-    const isWithinWorkRadius = isWithinRadius(latitude, longitude, workLat, workLon, ATTENDANCE_RADIUS_METERS, gpsAccuracy);
-
-    // Only allow attendance marking if within radius
+    // Block check-in if worker is outside the configured boundaries
     if (!isWithinWorkRadius) {
       return NextResponse.json({
         error: 'Attendance not allowed',
-        message: `You are ${distance.toFixed(2)}m away from work location. You must be within ${ATTENDANCE_RADIUS_METERS}m to mark attendance.`,
-        distance: parseFloat(distance.toFixed(2)),
+        message: `You are ${distance.toFixed(2)}m away from work location. You must be within the work radius to mark attendance.`,
+        distance,
       }, { status: 400 });
     }
 
-    
-// Generate signed URL for profile image from S3
-let profileImageUrl;
-try {
-    const getObjectCommand = new GetObjectCommand({
-    Bucket: process.env.S3_BUCKET_NAME,
-    Key: `b2of/${staff.id}.jpg`,
-    });
-    profileImageUrl = await getSignedUrl(s3Client, getObjectCommand, { expiresIn: 3600 });
-} catch (s3Error) {
-    console.error('S3 signed URL generation error:', s3Error);
-    return {
-    error: 'Profile image retrieval failed',
-    message: 'Unable to generate signed URL for profile image',
-    };
-}
-console.log('Generated signed URL for profile image:', profileImageUrl);
+    // 5. Retrieve profile image from S3
+    const profileImageUrl = await s3Service.getProfileImageUrl(staff.profile_image);
+    const profileImageBuffer = await s3Service.downloadProfileImage(profileImageUrl);
 
-let profileImageBase64;
-let profileImageBuffer;
-try {
-    const profileImageResponse = await fetch(profileImageUrl);
-    if (!profileImageResponse.ok) {
-    throw new Error('Failed to download profile image from S3');
-    }
-    profileImageBuffer = Buffer.from(await profileImageResponse.arrayBuffer());
-    profileImageBase64 = profileImageBuffer.toString('base64');
-    console.log('Profile image downloaded and converted to base64, size:', profileImageBase64.length);
-} catch (fetchError) {
-    console.error('Profile image download error:', fetchError);
-    return{
-    error: 'Profile image download failed',
-    message: 'Unable to download profile image from S3',
-    };
-}
-
-
-    // Convert capturedImage (which is a base64 Data URL) to binary Buffer
+    // 6. Convert captured face image Data URL to binary Buffer
     let capturedImageBuffer;
     if (capturedImage.startsWith('data:')) {
       const matches = capturedImage.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
@@ -123,20 +80,16 @@ try {
       capturedImageBuffer = Buffer.from(capturedImage, 'base64');
     }
 
-    // Send both images to the compare service
-    const compareForm = new FormData();
-    compareForm.append('image1', new Blob([capturedImageBuffer]), "capturedImage.jpg");
-    compareForm.append('image2', new Blob([profileImageBuffer]), "profileImage.jpg");
- const compareResponse = await fetch('http://54.159.44.101:5001/compare', {
-    method: 'POST',
-    body: compareForm,
-});
+    // 7. Verify faces using the AI comparison service
+    const { ok: compareOk, result: compareResult } = await faceComparisonService.compareFaces(
+      capturedImageBuffer,
+      profileImageBuffer
+    );
 
-
-    const compareResult = await compareResponse.json();
     console.log('Face comparison result:', compareResult);
 
-    if (!compareResponse.ok) {
+    // Handle comparison service errors
+    if (!compareOk) {
       // Trigger the face mismatch/error email pipeline asynchronously (non-blocking)
       sendFaceMismatchEmail({
         staff,
@@ -160,6 +113,7 @@ try {
       }, { status: 502 });
     }
 
+    // Handle face mismatch (similarity score below safe threshold)
     if (!compareResult.is_same_person || compareResult.similarity_percentage < 40) {
       // Trigger the face mismatch email pipeline asynchronously (non-blocking)
       sendFaceMismatchEmail({
@@ -184,33 +138,31 @@ try {
       }, { status: 400 });
     }
 
+    // 8. Create attendance record in database
     const recordId = `ATT-${Date.now()}`;
     const dateVal = timestamp ? new Date(timestamp) : new Date();
 
-    // Create attendance record in database
-    await prisma.attendance.create({
-      data: {
-        id: recordId,
-        staffId,
-        staffName: staff.name,
-        timestamp: dateVal,
-        currentLat: latitude,
-        currentLon: longitude,
-        accuracy: gpsAccuracy,
-        workLat,
-        workLon,
-        distanceFromWork: parseFloat(distance.toFixed(2)),
-        status: 'PRESENT',
-        remarks: 'Within work location radius',
-      },
+    await attendanceService.createAttendanceRecord({
+      id: recordId,
+      staffId,
+      staffName: staff.name,
+      timestamp: dateVal,
+      latitude,
+      longitude,
+      accuracy: gpsAccuracy,
+      workLat: staff.workLat,
+      workLon: staff.workLon,
+      distanceFromWork: distance,
+      status: 'PRESENT',
+      remarks: 'Within work location radius',
     });
 
     return NextResponse.json({
       success: true,
       message: 'Attendance marked as PRESENT',
-      distance: parseFloat(distance.toFixed(2)),
+      distance,
       status: 'PRESENT',
-      recordId: recordId,
+      recordId,
     });
   } catch (error) {
     console.error('Mark attendance error:', error);

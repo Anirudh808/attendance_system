@@ -85,6 +85,112 @@
   overflow-y: auto;
 }
 
+/* Hamburger & Dropdown styling */
+.menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.hamburger-button {
+  display: none; /* hidden on desktop */
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 101;
+}
+
+.hamburger-button .bar {
+  width: 24px;
+  height: 3px;
+  background-color: #374151;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-button.open .bar:nth-child(1) {
+  transform: translateY(7.5px) rotate(45deg);
+}
+
+.hamburger-button.open .bar:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-button.open .bar:nth-child(3) {
+  transform: translateY(-7.5px) rotate(-45deg);
+}
+
+.menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  z-index: 99;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 12px);
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 12px;
+  z-index: 100;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+.dropdown-user-info {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 8px 8px;
+}
+
+.dropdown-user-info strong {
+  font-size: 14px;
+  color: #111827;
+}
+
+.dropdown-user-info span {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.dropdown-divider {
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+  margin: 8px 0;
+}
+
+.dropdown-logout-button {
+  padding: 8px 12px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.dropdown-logout-button:hover {
+  background: #dc2626;
+}
+
 @media (max-width: 768px) {
   .dashboard-header {
     padding: 15px;
@@ -110,17 +216,28 @@
 
 @media (max-width: 480px) {
   .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    gap: 0;
   }
 
   .logout-button {
-    width: 100%;
+    display: none;
+  }
+
+  .hamburger-button {
+    display: flex;
   }
 
   .header-content h1 {
-    font-size: 18px;
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+
+  .header-content p {
+    font-size: 11px;
   }
 
   .dashboard-nav {

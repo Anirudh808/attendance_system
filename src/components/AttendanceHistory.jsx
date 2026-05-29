@@ -1,10 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getAttendanceRecords } from '../services/api';
-import { formatDate, formatTime, formatDistance } from '../utils/helpers';
+import { formatDate } from '../utils/helpers';
+import AttendanceRecordItem from './attendance/AttendanceRecordItem';
 import '../styles/AttendanceHistory.css';
 
+/**
+ * AttendanceHistory displays a paginated chronological view of the staff member's attendance log entries.
+ *
+ * @param {Object} props
+ * @param {Object} props.user - The current logged-in user details
+ */
 export default function AttendanceHistory({ user }) {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,11 +21,10 @@ export default function AttendanceHistory({ user }) {
 
   const limit = 10;
 
-  useEffect(() => {
-    fetchRecords();
-  }, [page]);
-
-  const fetchRecords = async () => {
+  /**
+   * Fetches attendance logs from the server.
+   */
+  const fetchRecords = useCallback(async () => {
     setLoading(true);
     setError('');
 
@@ -27,15 +33,26 @@ export default function AttendanceHistory({ user }) {
       setRecords(response.data.records);
       setTotalRecords(response.data.total);
     } catch (err) {
-      setError('Failed to fetch attendance records');
+      console.error('Error fetching records:', err);
+      setError('Failed to fetch attendance records. Please refresh and try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit]);
 
-  const groupRecordsByDate = (records) => {
+  useEffect(() => {
+    fetchRecords();
+  }, [fetchRecords]);
+
+  /**
+   * Helper function to group records by calendar date.
+   *
+   * @param {Array} recordsList - Raw records
+   * @returns {Object} Mapped calendar date to records arrays
+   */
+  const groupRecordsByDate = (recordsList) => {
     const grouped = {};
-    records.forEach((record) => {
+    recordsList.forEach((record) => {
       const date = formatDate(record.timestamp);
       if (!grouped[date]) {
         grouped[date] = [];
@@ -46,6 +63,7 @@ export default function AttendanceHistory({ user }) {
   };
 
   const groupedRecords = groupRecordsByDate(records);
+  const totalPages = Math.ceil(totalRecords / limit);
 
   return (
     <div className="attendance-history-container">
@@ -69,30 +87,7 @@ export default function AttendanceHistory({ user }) {
                 <h3 className="date-header">{date}</h3>
                 <div className="records">
                   {dayRecords.map((record) => (
-                    <div key={record.id} className={`record-item ${record.status.toLowerCase()}`}>
-                      <div className="record-header">
-                        <span className="time">{formatTime(record.timestamp)}</span>
-                        <span className={`status ${record.status.toLowerCase()}`}>
-                          {record.status === 'PRESENT' ? '✓ Present' : '✗ Absent'}
-                        </span>
-                      </div>
-                      <div className="record-details">
-                        <div className="detail">
-                          <span className="label">Distance:</span>
-                          <span className="value">{formatDistance(record.distanceFromWork)}</span>
-                        </div>
-                        <div className="detail">
-                          <span className="label">Location:</span>
-                          <span className="value">
-                            {record.currentLocation.latitude.toFixed(4)}, {record.currentLocation.longitude.toFixed(4)}
-                          </span>
-                        </div>
-                        <div className="detail">
-                          <span className="label">Remarks:</span>
-                          <span className="value">{record.remarks}</span>
-                        </div>
-                      </div>
-                    </div>
+                    <AttendanceRecordItem key={record.id} record={record} />
                   ))}
                 </div>
               </div>
@@ -100,21 +95,21 @@ export default function AttendanceHistory({ user }) {
           </div>
         )}
 
-        {/* Pagination */}
+        {/* Pagination Controls */}
         {totalRecords > limit && (
           <div className="pagination">
             <button
-              onClick={() => setPage(Math.max(0, page - 1))}
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0}
               className="pagination-button"
             >
               ← Previous
             </button>
             <span className="page-info">
-              Page {page + 1} of {Math.ceil(totalRecords / limit)} ({totalRecords} total)
+              Page {page + 1} of {totalPages} ({totalRecords} total)
             </span>
             <button
-              onClick={() => setPage(page + 1)}
+              onClick={() => setPage((p) => p + 1)}
               disabled={(page + 1) * limit >= totalRecords}
               className="pagination-button"
             >

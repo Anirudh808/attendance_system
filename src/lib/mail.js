@@ -26,14 +26,39 @@ export async function sendFaceMismatchEmail({
     return { success: false, error: 'SMTP config missing' };
   }
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: smtpUser || "anirudhmounasamy@gmail.com",
-      pass: smtpPass, // The 16-character App Password
-    },
-  });
-  console.log('Nodemailer transporter created with SMTP host:', smtpHost, 'and user:', smtpUser);
+  let transportConfig;
+  if (smtpHost) {
+    // Normalize smtp.google.com to smtp.gmail.com if configured by mistake
+    const targetHost = smtpHost === 'smtp.google.com' ? 'smtp.gmail.com' : smtpHost;
+    transportConfig = {
+      host: targetHost,
+      port: smtpPort,
+      secure: smtpSecure === true || smtpSecure === 'true' || smtpPort === 465,
+      auth: {
+        user: smtpUser || "anirudhmounasamy@gmail.com",
+        pass: smtpPass,
+      },
+    };
+  } else {
+    // Default fallback to smtp.gmail.com on port 587
+    transportConfig = {
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: smtpUser || "anirudhmounasamy@gmail.com",
+        pass: smtpPass,
+      },
+    };
+  }
+
+  // Add explicit timeout limits to prevent serverless function hangs
+  transportConfig.connectionTimeout = 5000;
+  transportConfig.greetingTimeout = 5000;
+  transportConfig.socketTimeout = 10000;
+
+  const transporter = nodemailer.createTransport(transportConfig);
+  console.log(`Nodemailer transporter created with host: ${transportConfig.host}, port: ${transportConfig.port}, secure: ${transportConfig.secure}, user: ${transportConfig.auth.user}`);
 
   // Format the timestamp for display in the email
 

@@ -93,8 +93,8 @@ export async function POST(request) {
 
     // Handle comparison service errors
     if (!compareOk) {
-      // Trigger the face mismatch/error email pipeline asynchronously (non-blocking)
-      sendFaceMismatchEmail({
+      // Trigger the face mismatch/error email pipeline (awaited to keep Vercel lambda alive)
+      await sendFaceMismatchEmail({
         staff,
         capturedImageBuffer,
         profileImageBuffer,
@@ -106,7 +106,7 @@ export async function POST(request) {
         aiResponse: compareResult,
         errorMessage: compareResult.error || compareResult.message || 'Face comparison service returned an error response'
       }).catch((mailError) => {
-        console.error('Failed to send email notification on verification failure in background:', mailError);
+        console.error('Failed to send email notification on verification failure:', mailError);
       });
 
       return NextResponse.json({
@@ -118,8 +118,8 @@ export async function POST(request) {
 
     // Handle face mismatch (similarity score below safe threshold)
     if (!compareResult.is_same_person || compareResult.similarity_percentage < 40) {
-      // Trigger the face mismatch email pipeline asynchronously (non-blocking)
-      sendFaceMismatchEmail({
+      // Trigger the face mismatch email pipeline (awaited to keep Vercel lambda alive)
+      await sendFaceMismatchEmail({
         staff,
         capturedImageBuffer,
         profileImageBuffer,
@@ -131,7 +131,7 @@ export async function POST(request) {
         aiResponse: compareResult,
         errorMessage: compareResult.message || 'Face comparison similarity score is below the required threshold'
       }).catch((mailError) => {
-        console.error('Failed to send email notification on face mismatch in background:', mailError);
+        console.error('Failed to send email notification on face mismatch:', mailError);
       });
 
       return NextResponse.json({

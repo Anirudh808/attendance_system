@@ -33,6 +33,9 @@ export async function sendFaceMismatchEmail({
       pass: smtpPass, // The 16-character App Password
     },
   });
+  console.log('Nodemailer transporter created with SMTP host:', smtpHost, 'and user:', smtpUser);
+
+  // Format the timestamp for display in the email
 
   const formattedTime = timestamp ? new Date(timestamp).toLocaleString() : new Date().toLocaleString();
 

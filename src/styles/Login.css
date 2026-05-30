@@ -108,6 +108,28 @@
   cursor: not-allowed;
 }
 
+.register-link-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.register-link-container p {
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.register-redirect {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.register-redirect:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
 .login-footer {
   margin-top: 30px;
   padding-top: 20px;

@@ -20,19 +20,19 @@ export async function sendFaceMismatchEmail({
   aiResponse,
   errorMessage,
 }) {
-  // If SMTP configurations are missing, we should still try to log them or throw an error
-  if (!smtpHost || !smtpUser || !smtpPass) {
-    console.error('SMTP configuration is missing. Cannot send mismatch email.');
+  // If SMTP password is missing, we cannot send the email
+  if (!smtpPass) {
+    console.error('SMTP configuration (SMTP_PASS) is missing. Cannot send mismatch email.');
     return { success: false, error: 'SMTP config missing' };
   }
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "anirudhmounasamy@gmail.com",
-    pass: process.env.SMTP_PASS, // The 16-character App Password
-  },
-});
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: smtpUser || "anirudhmounasamy@gmail.com",
+      pass: smtpPass, // The 16-character App Password
+    },
+  });
 
   const formattedTime = timestamp ? new Date(timestamp).toLocaleString() : new Date().toLocaleString();
 

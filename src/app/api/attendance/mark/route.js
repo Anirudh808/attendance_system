@@ -63,7 +63,10 @@ export async function POST(request) {
     }
 
     // 5. Retrieve profile image from S3
-    const profileImageUrl = await s3Service.getProfileImageUrl(staff.profile_image);
+    const s3Key = staff.profile_image || `b2of/${staffId}.jpg`;
+    console.log(s3Key);
+    const profileImageUrl = await s3Service.getProfileImageUrl(s3Key);
+    console.log('Profile image URL:', profileImageUrl);
     const profileImageBuffer = await s3Service.downloadProfileImage(profileImageUrl);
 
     // 6. Convert captured face image Data URL to binary Buffer

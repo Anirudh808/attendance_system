@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { login } from '../services/api';
 import '../styles/Login.css';
 
@@ -77,6 +78,10 @@ export default function Login({ onLoginSuccess }) {
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+
+        <div className="register-link-container">
+          <p>New employee? <Link href="/register" className="register-redirect">Register here</Link></p>
+        </div>
 
         <div className="login-footer">
           <p>Test Credentials:</p>

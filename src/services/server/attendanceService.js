@@ -25,6 +25,24 @@ export const attendanceService = {
   },
 
   /**
+   * Retrieves a work location record by ID and userId.
+   * 
+   * @param {string} id - WorkLocation ID
+   * @param {string} userId - Staff ID
+   * @returns {Promise<Object|null>} Work location record or null if not found
+   */
+  async getWorkLocation(id, userId) {
+    try {
+      return await prisma.workLocation.findFirst({
+        where: { id, userId },
+      });
+    } catch (error) {
+      console.error(`Error fetching work location ${id}:`, error);
+      throw new Error(`Failed to fetch work location: ${error.message}`);
+    }
+  },
+
+  /**
    * Validates if a coordinate is within the permitted work radius.
    * 
    * @param {number} latitude - Current latitude

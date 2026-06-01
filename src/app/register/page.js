@@ -3,93 +3,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { APIProvider, Map, Marker, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
+import { APIProvider } from '@vis.gl/react-google-maps';
+import MapWidget from '@/components/attendance/MapWidget';
 import '../../styles/Register.css';
 
 const DEFAULT_CENTER = { lat: 13.0827, lng: 80.2707 }; // Chennai, India center as default
-
-/**
- * MapWidget handles rendering of the interactive map, placing a draggable marker,
- * and performing places autocomplete searches to pan the map.
- * Declared inside the provider context to enable maps SDK hooks.
- */
-function MapWidget({ markerPosition, setMarkerPosition, setWorkAddress }) {
-  const map = useMap();
-  const autocompleteInputRef = useRef(null);
-  const placesLibrary = useMapsLibrary('places');
-
-  useEffect(() => {
-    if (!map || !placesLibrary || !autocompleteInputRef.current) return;
-
-    // Initialize Places Autocomplete on search input
-    const autocomplete = new window.google.maps.places.Autocomplete(autocompleteInputRef.current, {
-      fields: ['geometry', 'formatted_address', 'name'],
-    });
-
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      if (place.geometry && place.geometry.location) {
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-        
-        const newPos = { lat, lng };
-        setMarkerPosition(newPos);
-        setWorkAddress(place.formatted_address || place.name || '');
-        
-        // Pan the map and zoom in on search result location
-        map.panTo(newPos);
-        map.setZoom(16);
-      }
-    });
-  }, [map, placesLibrary, setMarkerPosition, setWorkAddress]);
-
-  const handleMapClick = (event) => {
-    if (event.latLng) {
-      setMarkerPosition({
-        lat: event.latLng.lat(),
-        lng: event.latLng.lng()
-      });
-    }
-  };
-
-  const handleMarkerDragEnd = (event) => {
-    if (event.latLng) {
-      setMarkerPosition({
-        lat: event.latLng.lat(),
-        lng: event.latLng.lng()
-      });
-    }
-  };
-
-  return (
-    <>
-      <div className="map-search-container">
-        <input
-          ref={autocompleteInputRef}
-          type="text"
-          placeholder="🔍 Search location or address..."
-          className="map-search-input"
-          onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-        />
-      </div>
-      <div className="map-wrapper">
-        <Map
-          defaultCenter={DEFAULT_CENTER}
-          defaultZoom={13}
-          onClick={handleMapClick}
-          gestureHandling="greedy"
-          disableDefaultUI={true}
-        >
-          <Marker
-            position={markerPosition}
-            draggable={true}
-            onDragEnd={handleMarkerDragEnd}
-          />
-        </Map>
-      </div>
-    </>
-  );
-}
 
 export default function Register() {
   const router = useRouter();
@@ -101,9 +19,32 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [department, setDepartment] = useState('');
+  const [role, setRole] = useState('STAFF');
   const [workAddress, setWorkAddress] = useState('');
   const [workLat, setWorkLat] = useState(DEFAULT_CENTER.lat);
   const [workLon, setWorkLon] = useState(DEFAULT_CENTER.lng);
+
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('authToken');
+    if (!storedUser || !storedToken) {
+      router.push('/');
+      return;
+    }
+    try {
+      const parsedUser = JSON.parse(storedUser);
+      if (parsedUser.role !== 'ADMIN') {
+        router.push('/');
+        return;
+      }
+    } catch (e) {
+      router.push('/');
+      return;
+    }
+    setCheckingAuth(false);
+  }, [router]);
   
   // Image state
   const [imageFile, setImageFile] = useState(null);
@@ -190,14 +131,20 @@ export default function Register() {
       formData.append('email', email);
       formData.append('password', password);
       formData.append('department', department);
+      formData.append('role', role);
       formData.append('workLat', workLat.toString());
       formData.append('workLon', workLon.toString());
       formData.append('workAddress', workAddress);
       formData.append('image', imageFile);
 
+      const token = localStorage.getItem('authToken');
+
       // Call API
       const response = await fetch('/api/auth/register', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
       });
 
@@ -215,6 +162,7 @@ export default function Register() {
       setPassword('');
       setConfirmPassword('');
       setDepartment('');
+      setRole('STAFF');
       setWorkAddress('');
       setImageFile(null);
       setImagePreview('');
@@ -234,6 +182,15 @@ export default function Register() {
   const triggerFileSelect = () => {
     fileInputRef.current?.click();
   };
+
+  if (checkingAuth) {
+    return (
+      <div className="loading-screen">
+        <div className="loader"></div>
+        <p>Authorizing...</p>
+      </div>
+    );
+  }
 
   return (
     <APIProvider 
@@ -343,6 +300,20 @@ export default function Register() {
                         <option value="Finance">Finance</option>
                       </select>
                     </div>
+                  </div>
+
+                  <div className="form-field">
+                    <label htmlFor="staff-role">System Role</label>
+                    <select
+                      id="staff-role"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      disabled={loading}
+                      required
+                    >
+                      <option value="STAFF">STAFF (Regular Employee)</option>
+                      <option value="ADMIN">ADMIN (Full Access)</option>
+                    </select>
                   </div>
 
                   <div className="form-group-row">

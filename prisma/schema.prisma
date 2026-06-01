@@ -8,16 +8,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  STAFF
+}
+
 model Staff {
-  id          String       @id
-  name        String
-  email       String       @unique
-  password    String
-  department  String
-  workLat     Float
-  workLon     Float
-  workAddress String
-  attendance  Attendance[]
+  id            String         @id
+  name          String
+  email         String         @unique
+  password      String
+  department    String
+  role          Role           @default(STAFF)
+  workLat       Float
+  workLon       Float
+  workAddress   String
+  attendance    Attendance[]
+  workLocations WorkLocation[]
 }
 
 model Attendance {
@@ -35,3 +42,13 @@ model Attendance {
   remarks          String
   staff            Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
 }
+
+model WorkLocation {
+  id      String @id @default(uuid())
+  userId  String
+  name    String
+  workLat Float
+  workLon Float
+  staff   Staff  @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+

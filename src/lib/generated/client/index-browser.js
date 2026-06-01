@@ -127,6 +127,7 @@ exports.Prisma.StaffScalarFieldEnum = {
   email: 'email',
   password: 'password',
   department: 'department',
+  role: 'role',
   workLat: 'workLat',
   workLon: 'workLon',
   workAddress: 'workAddress'
@@ -147,6 +148,14 @@ exports.Prisma.AttendanceScalarFieldEnum = {
   remarks: 'remarks'
 };
 
+exports.Prisma.WorkLocationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  workLat: 'workLat',
+  workLon: 'workLon'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -156,11 +165,15 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
-
+exports.Role = exports.$Enums.Role = {
+  ADMIN: 'ADMIN',
+  STAFF: 'STAFF'
+};
 
 exports.Prisma.ModelName = {
   Staff: 'Staff',
-  Attendance: 'Attendance'
+  Attendance: 'Attendance',
+  WorkLocation: 'WorkLocation'
 };
 
 /**

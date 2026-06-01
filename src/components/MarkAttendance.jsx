@@ -21,6 +21,7 @@ export default function MarkAttendance({ user }) {
   const [success, setSuccess] = useState(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [selectedWorkLocationId, setSelectedWorkLocationId] = useState('');
 
   const locationPromiseRef = useRef(null);
 
@@ -71,7 +72,8 @@ export default function MarkAttendance({ user }) {
         loc.longitude,
         loc.timestamp,
         loc.accuracy,
-        img
+        img,
+        selectedWorkLocationId
       );
 
       setSuccess({
@@ -107,14 +109,37 @@ export default function MarkAttendance({ user }) {
     setLoading(false);
   };
 
+  const currentWorkLocation = user?.workLocations?.find(loc => loc.id === selectedWorkLocationId);
+
   return (
     <div className="mark-attendance-container">
       <div className="mark-card">
         <h2>Mark Attendance</h2>
 
+        {/* Work Location Dropdown */}
+        {!cameraActive && (
+          <div className="work-location-select-container">
+            <label htmlFor="work-location-select">Select Work Location</label>
+            <select
+              id="work-location-select"
+              value={selectedWorkLocationId}
+              onChange={(e) => setSelectedWorkLocationId(e.target.value)}
+              className="work-location-dropdown"
+              disabled={loading}
+            >
+              <option value="">-- Choose a location --</option>
+              {user?.workLocations?.map((loc) => (
+                <option key={loc.id} value={loc.id}>
+                  {loc.name} (Lat: {loc.workLat.toFixed(4)}, Lon: {loc.workLon.toFixed(4)})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {/* Location verification display or compact status */}
         {!cameraActive ? (
-          <LocationDisplay user={user} location={location} />
+          <LocationDisplay user={user} location={location} selectedWorkLocation={currentWorkLocation} />
         ) : (
           <div className="camera-location-status">
             {location ? '🟢 Location acquired' : '⏳ Acquiring GPS location...'}
@@ -146,7 +171,7 @@ export default function MarkAttendance({ user }) {
           <div className="button-group">
             <button
               onClick={handleMarkAttendance}
-              disabled={loading}
+              disabled={loading || !selectedWorkLocationId}
               className="success-button"
             >
               {loading ? 'Processing...' : '✓ Mark Attendance'}

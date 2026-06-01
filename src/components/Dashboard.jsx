@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import '../styles/Dashboard.css';
 import MarkAttendance from './MarkAttendance';
 import AttendanceHistory from './AttendanceHistory';
@@ -71,6 +72,16 @@ export default function Dashboard({ user, onLogout }) {
         >
           👤 Profile
         </button>
+        {user?.role === 'ADMIN' && (
+          <>
+            <Link href="/admin" className="nav-button">
+              ⚙️ Admin Panel
+            </Link>
+            <Link href="/register" className="nav-button">
+              ➕ Register
+            </Link>
+          </>
+        )}
       </div>
 
       <div className="dashboard-content">

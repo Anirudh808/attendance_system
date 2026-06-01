@@ -22,7 +22,7 @@ export async function POST(request) {
 
     const staffId = user.staffId;
     const body = await request.json().catch(() => ({}));
-    const { latitude, longitude, timestamp, accuracy, capturedImage } = body;
+    const { latitude, longitude, timestamp, accuracy, capturedImage, workLocationId } = body;
 
     // 2. Validate inputs
     if (latitude === undefined || longitude === undefined) {
@@ -31,6 +31,10 @@ export async function POST(request) {
 
     if (!capturedImage) {
       return NextResponse.json({ error: 'Captured image is required for face verification' }, { status: 400 });
+    }
+
+    if (!workLocationId) {
+      return NextResponse.json({ error: 'Work location selection is required' }, { status: 400 });
     }
 
     // Validate coordinate ranges
@@ -44,12 +48,18 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Staff record not found' }, { status: 404 });
     }
 
+    // Retrieve selected work location
+    const workLocation = await attendanceService.getWorkLocation(workLocationId, staffId);
+    if (!workLocation) {
+      return NextResponse.json({ error: 'Selected work location not found or invalid' }, { status: 404 });
+    }
+
     // 4. Verify work location radius
     const gpsAccuracy = accuracy || 0;
     const { distance, isWithinWorkRadius } = attendanceService.verifyWorkRadius(
       latitude,
       longitude,
-      staff,
+      workLocation,
       gpsAccuracy
     );
 
@@ -57,7 +67,7 @@ export async function POST(request) {
     if (!isWithinWorkRadius) {
       return NextResponse.json({
         error: 'Attendance not allowed',
-        message: `You are ${distance.toFixed(2)}m away from work location. You must be within the work radius to mark attendance.`,
+        message: `You are ${distance.toFixed(2)}m away from the selected work location. You must be within the work radius to mark attendance.`,
         distance,
       }, { status: 400 });
     }
@@ -153,8 +163,8 @@ export async function POST(request) {
       latitude,
       longitude,
       accuracy: gpsAccuracy,
-      workLat: staff.workLat,
-      workLon: staff.workLon,
+      workLat: workLocation.workLat,
+      workLon: workLocation.workLon,
       distanceFromWork: distance,
       status: 'PRESENT',
       remarks: 'Within work location radius',

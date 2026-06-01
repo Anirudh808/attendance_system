@@ -41,7 +41,7 @@ export const login = (staffId, password) => {
   return apiClient.post('/auth/login', { staffId, password });
 };
 
-export const markAttendance = (latitude, longitude, timestamp, accuracy, capturedImage) => {
+export const markAttendance = (latitude, longitude, timestamp, accuracy, capturedImage, workLocationId) => {
   console.log(capturedImage);
   return apiClient.post('/attendance/mark', {
     latitude,
@@ -49,6 +49,7 @@ export const markAttendance = (latitude, longitude, timestamp, accuracy, capture
     timestamp: timestamp || new Date().toISOString(),
     accuracy,
     capturedImage,
+    workLocationId,
   });
 };
 

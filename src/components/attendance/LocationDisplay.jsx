@@ -9,20 +9,26 @@ import { formatTime } from '../../utils/helpers';
  * @param {Object} props.user - Current logged-in user object
  * @param {Object} [props.location] - Resolved user coordinates and accuracy
  */
-export default function LocationDisplay({ user, location }) {
-  const workLat = user?.workLocation?.latitude;
-  const workLon = user?.workLocation?.longitude;
+export default function LocationDisplay({ user, location, selectedWorkLocation }) {
+  const workLat = selectedWorkLocation ? selectedWorkLocation.workLat : undefined;
+  const workLon = selectedWorkLocation ? selectedWorkLocation.workLon : undefined;
 
   return (
     <div className="location-display-wrapper">
       {/* Target Work Location */}
       <div className="info-box">
         <h3>📍 Work Location</h3>
-        <p>{user?.workLocation?.address || 'Configured Location'}</p>
-        {workLat !== undefined && workLon !== undefined && (
-          <small>
-            Lat: {workLat.toFixed(4)}, Lon: {workLon.toFixed(4)}
-          </small>
+        {selectedWorkLocation ? (
+          <>
+            <p>{selectedWorkLocation.name}</p>
+            {workLat !== undefined && workLon !== undefined && (
+              <small>
+                Lat: {workLat.toFixed(4)}, Lon: {workLon.toFixed(4)}
+              </small>
+            )}
+          </>
+        ) : (
+          <p style={{ color: '#e53e3e', fontWeight: '500' }}>⚠️ No location selected</p>
         )}
       </div>
 

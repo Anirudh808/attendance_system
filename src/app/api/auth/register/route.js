@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { s3Service } from '@/services/server/s3Service';
+import { verifyAuth } from '@/lib/auth';
 
 /**
  * API Handler for registering a new staff member.
@@ -13,8 +14,17 @@ import { s3Service } from '@/services/server/s3Service';
  */
 export async function POST(request) {
   try {
+    // Authenticate calling token and verify ADMIN role
+    const caller = verifyAuth(request);
+    if (!caller) {
+      return NextResponse.json({ error: 'Unauthorized: Authentication required' }, { status: 401 });
+    }
+    if (caller.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+    }
+
     const contentType = request.headers.get('content-type') || '';
-    let id, name, email, password, department, workLat, workLon, workAddress, imageBuffer, imageContentType;
+    let id, name, email, password, department, role, workLat, workLon, workAddress, imageBuffer, imageContentType;
 
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
@@ -23,6 +33,7 @@ export async function POST(request) {
       email = formData.get('email');
       password = formData.get('password');
       department = formData.get('department');
+      role = formData.get('role');
       const rawLat = formData.get('workLat');
       const rawLon = formData.get('workLon');
       workLat = rawLat ? parseFloat(rawLat.toString()) : undefined;
@@ -42,6 +53,7 @@ export async function POST(request) {
       email = body.email;
       password = body.password;
       department = body.department;
+      role = body.role;
       workLat = body.workLat !== undefined ? parseFloat(body.workLat) : undefined;
       workLon = body.workLon !== undefined ? parseFloat(body.workLon) : undefined;
       workAddress = body.workAddress;
@@ -71,6 +83,11 @@ export async function POST(request) {
     const cleanPassword = password?.toString().trim();
     const cleanDepartment = department?.toString().trim();
     const cleanWorkAddress = workAddress?.toString().trim();
+    
+    let cleanRole = role?.toString().trim().toUpperCase();
+    if (cleanRole !== 'ADMIN' && cleanRole !== 'STAFF') {
+      cleanRole = 'STAFF';
+    }
 
     // 2. Validate inputs
     if (!cleanId || !cleanName || !cleanEmail || !cleanPassword || !cleanDepartment || workLat === undefined || isNaN(workLat) || workLon === undefined || isNaN(workLon) || !cleanWorkAddress) {
@@ -117,10 +134,22 @@ export async function POST(request) {
         email: cleanEmail,
         password: cleanPassword, // Aligning with plain text password in login API for prototype validation
         department: cleanDepartment,
+        role: cleanRole,
         workLat,
         workLon,
         workAddress: cleanWorkAddress,
+        workLocations: {
+          create: {
+            id: `loc-${cleanId}`,
+            name: cleanWorkAddress,
+            workLat,
+            workLon,
+          }
+        }
       },
+      include: {
+        workLocations: true,
+      }
     });
 
     return NextResponse.json({
@@ -131,11 +160,13 @@ export async function POST(request) {
         name: staff.name,
         email: staff.email,
         department: staff.department,
+        role: staff.role,
         workLocation: {
           latitude: staff.workLat,
           longitude: staff.workLon,
           address: staff.workAddress,
         },
+        workLocations: staff.workLocations,
         profileImageKey: s3Key,
       },
     }, { status: 201 });

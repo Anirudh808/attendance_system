@@ -17,6 +17,9 @@ export async function POST(request) {
     // Query staff record using Prisma
     const staff = await prisma.staff.findUnique({
       where: { id: staffId },
+      include: {
+        workLocations: true,
+      },
     });
 
     if (!staff) {
@@ -35,6 +38,7 @@ export async function POST(request) {
         name: staff.name,
         email: staff.email,
         department: staff.department,
+        role: staff.role,
       },
       JWT_SECRET,
       { expiresIn: '24h' }
@@ -48,11 +52,13 @@ export async function POST(request) {
         name: staff.name,
         email: staff.email,
         department: staff.department,
+        role: staff.role,
         workLocation: {
           latitude: staff.workLat,
           longitude: staff.workLon,
           address: staff.workAddress,
         },
+        workLocations: staff.workLocations,
       },
     });
   } catch (error) {

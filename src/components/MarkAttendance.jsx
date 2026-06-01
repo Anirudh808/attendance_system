@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useRef, useState } from 'react';
-import { markAttendance } from '../services/api';
+import React, { useRef, useState, useEffect } from 'react';
+import { markAttendance, getAttendanceStatus } from '../services/api';
 import { getCurrentLocation, formatDistance } from '../utils/helpers';
 import CameraPortal from './attendance/CameraPortal';
 import LocationDisplay from './attendance/LocationDisplay';
@@ -22,8 +22,34 @@ export default function MarkAttendance({ user }) {
   const [cameraActive, setCameraActive] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [selectedWorkLocationId, setSelectedWorkLocationId] = useState('');
+  const [attendanceType, setAttendanceType] = useState('CHECK_IN');
+  const [isCheckedIn, setIsCheckedIn] = useState(null);
+  const [loadingStatus, setLoadingStatus] = useState(false);
 
   const locationPromiseRef = useRef(null);
+
+  useEffect(() => {
+    if (!selectedWorkLocationId) {
+      setIsCheckedIn(null);
+      return;
+    }
+
+    setLoadingStatus(true);
+    setError('');
+    getAttendanceStatus(selectedWorkLocationId)
+      .then((res) => {
+        const checkedIn = res.data.checkedIn;
+        setIsCheckedIn(checkedIn);
+        setAttendanceType(checkedIn ? 'CHECK_OUT' : 'CHECK_IN');
+      })
+      .catch((err) => {
+        console.error('Error fetching location check-in status:', err);
+        setError('Failed to load check-in status for this location.');
+      })
+      .finally(() => {
+        setLoadingStatus(false);
+      });
+  }, [selectedWorkLocationId]);
 
   /**
    * Triggers location tracking and activates the camera portal.
@@ -73,7 +99,8 @@ export default function MarkAttendance({ user }) {
         loc.timestamp,
         loc.accuracy,
         img,
-        selectedWorkLocationId
+        selectedWorkLocationId,
+        attendanceType
       );
 
       setSuccess({
@@ -82,6 +109,11 @@ export default function MarkAttendance({ user }) {
         distance: response.data.distance,
         recordId: response.data.recordId,
       });
+
+      // Update local check-in status
+      const nextCheckedIn = attendanceType === 'CHECK_IN';
+      setIsCheckedIn(nextCheckedIn);
+      setAttendanceType(nextCheckedIn ? 'CHECK_OUT' : 'CHECK_IN');
 
       setCameraActive(false);
       setCapturedImage(null);
@@ -137,6 +169,34 @@ export default function MarkAttendance({ user }) {
           </div>
         )}
 
+        {/* Attendance Action Selector */}
+        {!cameraActive && (
+          <div className="action-type-container">
+            <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Select Action Type</span>
+              {loadingStatus && <span style={{ fontSize: '11px', color: '#6b7280', fontWeight: 'normal' }}>⏳ Checking status...</span>}
+            </label>
+            <div className="segmented-control">
+              <button
+                type="button"
+                className={`control-btn ${attendanceType === 'CHECK_IN' ? 'active check-in' : ''}`}
+                onClick={() => setAttendanceType('CHECK_IN')}
+                disabled={loading || loadingStatus || !selectedWorkLocationId || isCheckedIn === true}
+              >
+                📥 Check In
+              </button>
+              <button
+                type="button"
+                className={`control-btn ${attendanceType === 'CHECK_OUT' ? 'active check-out' : ''}`}
+                onClick={() => setAttendanceType('CHECK_OUT')}
+                disabled={loading || loadingStatus || !selectedWorkLocationId || isCheckedIn === false}
+              >
+                📤 Sign Off
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Location verification display or compact status */}
         {!cameraActive ? (
           <LocationDisplay user={user} location={location} selectedWorkLocation={currentWorkLocation} />
@@ -171,10 +231,10 @@ export default function MarkAttendance({ user }) {
           <div className="button-group">
             <button
               onClick={handleMarkAttendance}
-              disabled={loading || !selectedWorkLocationId}
-              className="success-button"
+              disabled={loading || loadingStatus || !selectedWorkLocationId || isCheckedIn === null}
+              className={`success-button ${attendanceType === 'CHECK_OUT' ? 'sign-off-btn' : ''}`}
             >
-              {loading ? 'Processing...' : '✓ Mark Attendance'}
+              {loading ? 'Processing...' : loadingStatus ? 'Checking Status...' : attendanceType === 'CHECK_IN' ? '✓ Mark Check-In' : '✗ Mark Sign-Off'}
             </button>
           </div>
         )}

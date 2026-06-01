@@ -7,16 +7,22 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 export async function POST(request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const { staffId, password } = body;
+    const { staffId, email, identifier, password } = body;
+    const loginId = identifier || staffId || email;
 
     // Validate input
-    if (!staffId || !password) {
-      return NextResponse.json({ error: 'Staff ID and password are required' }, { status: 400 });
+    if (!loginId || !password) {
+      return NextResponse.json({ error: 'Staff ID/Email and password are required' }, { status: 400 });
     }
 
     // Query staff record using Prisma
-    const staff = await prisma.staff.findUnique({
-      where: { id: staffId },
+    const staff = await prisma.staff.findFirst({
+      where: {
+        OR: [
+          { id: loginId },
+          { email: loginId }
+        ]
+      },
       include: {
         workLocations: true,
       },

@@ -27,20 +27,28 @@ model Staff {
   workLocations WorkLocation[]
 }
 
+enum AttendanceType {
+  CHECK_IN
+  CHECK_OUT
+}
+
 model Attendance {
-  id               String   @id
+  id               String         @id
   staffId          String
   staffName        String
-  timestamp        DateTime @default(now())
+  timestamp        DateTime       @default(now())
   currentLat       Float
   currentLon       Float
-  accuracy         Float    @default(0.0)
+  accuracy         Float          @default(0.0)
   workLat          Float
   workLon          Float
   distanceFromWork Float
   status           String
   remarks          String
-  staff            Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  attendanceType   AttendanceType @default(CHECK_IN)
+  workLocationId   String?
+  workLocationName String?
+  staff            Staff          @relation(fields: [staffId], references: [id], onDelete: Cascade)
 }
 
 model WorkLocation {

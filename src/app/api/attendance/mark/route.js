@@ -22,7 +22,12 @@ export async function POST(request) {
 
     const staffId = user.staffId;
     const body = await request.json().catch(() => ({}));
-    const { latitude, longitude, timestamp, accuracy, capturedImage, workLocationId } = body;
+    const { latitude, longitude, timestamp, accuracy, capturedImage, workLocationId, attendanceType } = body;
+
+    const cleanType = attendanceType ? attendanceType.toString().trim().toUpperCase() : 'CHECK_IN';
+    if (cleanType !== 'CHECK_IN' && cleanType !== 'CHECK_OUT') {
+      return NextResponse.json({ error: 'Invalid attendanceType. Must be CHECK_IN or CHECK_OUT' }, { status: 400 });
+    }
 
     // 2. Validate inputs
     if (latitude === undefined || longitude === undefined) {
@@ -52,6 +57,24 @@ export async function POST(request) {
     const workLocation = await attendanceService.getWorkLocation(workLocationId, staffId);
     if (!workLocation) {
       return NextResponse.json({ error: 'Selected work location not found or invalid' }, { status: 404 });
+    }
+
+    // 3.5 Verify attendance action logic integrity (prevent double check-in / invalid sign-off)
+    const lastRecord = await attendanceService.getLastRecordForLocation(staffId, workLocationId);
+    if (cleanType === 'CHECK_IN') {
+      if (lastRecord && lastRecord.attendanceType === 'CHECK_IN') {
+        return NextResponse.json({
+          error: 'Already checked in',
+          message: 'You are already checked in at this location. You must sign off before checking in again.'
+        }, { status: 400 });
+      }
+    } else if (cleanType === 'CHECK_OUT') {
+      if (!lastRecord || lastRecord.attendanceType === 'CHECK_OUT') {
+        return NextResponse.json({
+          error: 'Not checked in',
+          message: 'You cannot sign off because you are not currently checked in at this location.'
+        }, { status: 400 });
+      }
     }
 
     // 4. Verify work location radius
@@ -167,12 +190,15 @@ export async function POST(request) {
       workLon: workLocation.workLon,
       distanceFromWork: distance,
       status: 'PRESENT',
-      remarks: 'Within work location radius',
+      remarks: `Within work location radius (${cleanType})`,
+      attendanceType: cleanType,
+      workLocationId: workLocation.id,
+      workLocationName: workLocation.name,
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Attendance marked as PRESENT',
+      message: `Attendance marked as ${cleanType === 'CHECK_IN' ? 'CHECK-IN' : 'SIGN-OFF'} successfully`,
       distance,
       status: 'PRESENT',
       recordId,

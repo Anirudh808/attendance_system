@@ -87,6 +87,9 @@ export const attendanceService = {
           distanceFromWork: data.distanceFromWork,
           status: data.status || 'PRESENT',
           remarks: data.remarks || 'Within work location radius',
+          attendanceType: data.attendanceType || 'CHECK_IN',
+          workLocationId: data.workLocationId || null,
+          workLocationName: data.workLocationName || null,
         },
       });
     } catch (error) {
@@ -177,6 +180,28 @@ export const attendanceService = {
       distanceFromWork: r.distanceFromWork,
       status: r.status,
       remarks: r.remarks,
+      attendanceType: r.attendanceType,
+      workLocationId: r.workLocationId,
+      workLocationName: r.workLocationName,
     }));
+  },
+
+  /**
+   * Retrieves the most recent attendance record for a staff member at a specific location.
+   * 
+   * @param {string} staffId - Staff ID
+   * @param {string} workLocationId - Work location ID
+   * @returns {Promise<Object|null>} The last attendance record or null
+   */
+  async getLastRecordForLocation(staffId, workLocationId) {
+    try {
+      return await prisma.attendance.findFirst({
+        where: { staffId, workLocationId },
+        orderBy: { timestamp: 'desc' },
+      });
+    } catch (error) {
+      console.error(`Error fetching last record for staff ${staffId} at location ${workLocationId}:`, error);
+      throw new Error(`Failed to fetch last record: ${error.message}`);
+    }
   }
 };

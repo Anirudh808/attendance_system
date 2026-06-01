@@ -401,3 +401,68 @@
   cursor: not-allowed;
 }
 
+.action-type-container {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.action-type-container label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  text-align: left;
+}
+
+.segmented-control {
+  display: flex;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  padding: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.control-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.control-btn:hover:not(.active) {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #1f2937;
+}
+
+.control-btn.active.check-in {
+  background-color: #3b82f6;
+  color: white;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.control-btn.active.check-out {
+  background-color: #ef4444;
+  color: white;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.sign-off-btn {
+  background-color: #ef4444 !important;
+}
+
+.sign-off-btn:hover:not(:disabled) {
+  background-color: #dc2626 !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+}
+

@@ -145,7 +145,10 @@ exports.Prisma.AttendanceScalarFieldEnum = {
   workLon: 'workLon',
   distanceFromWork: 'distanceFromWork',
   status: 'status',
-  remarks: 'remarks'
+  remarks: 'remarks',
+  attendanceType: 'attendanceType',
+  workLocationId: 'workLocationId',
+  workLocationName: 'workLocationName'
 };
 
 exports.Prisma.WorkLocationScalarFieldEnum = {
@@ -165,9 +168,19 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
 exports.Role = exports.$Enums.Role = {
   ADMIN: 'ADMIN',
   STAFF: 'STAFF'
+};
+
+exports.AttendanceType = exports.$Enums.AttendanceType = {
+  CHECK_IN: 'CHECK_IN',
+  CHECK_OUT: 'CHECK_OUT'
 };
 
 exports.Prisma.ModelName = {

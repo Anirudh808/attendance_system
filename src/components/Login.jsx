@@ -6,7 +6,7 @@ import { login } from '../services/api';
 import '../styles/Login.css';
 
 export default function Login({ onLoginSuccess }) {
-  const [staffId, setStaffId] = useState('');
+  const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,7 +17,7 @@ export default function Login({ onLoginSuccess }) {
     setLoading(true);
 
     try {
-      const response = await login(staffId, password);
+      const response = await login(loginId, password);
       const { token, staff } = response.data;
 
       // Save to localStorage
@@ -43,13 +43,13 @@ export default function Login({ onLoginSuccess }) {
 
         <form onSubmit={handleLogin} className="login-form">
           <div className="form-group">
-            <label htmlFor="staffId">Staff ID</label>
+            <label htmlFor="loginId">Staff ID or Email</label>
             <input
-              id="staffId"
+              id="loginId"
               type="text"
-              placeholder="e.g., EMP001"
-              value={staffId}
-              onChange={(e) => setStaffId(e.target.value)}
+              placeholder="e.g. EMP001 or user@example.com"
+              value={loginId}
+              onChange={(e) => setLoginId(e.target.value)}
               disabled={loading}
               required
             />

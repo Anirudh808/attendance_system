@@ -37,11 +37,11 @@ apiClient.interceptors.response.use(
   }
 );
 
-export const login = (staffId, password) => {
-  return apiClient.post('/auth/login', { staffId, password });
+export const login = (identifier, password) => {
+  return apiClient.post('/auth/login', { staffId: identifier, password });
 };
 
-export const markAttendance = (latitude, longitude, timestamp, accuracy, capturedImage, workLocationId) => {
+export const markAttendance = (latitude, longitude, timestamp, accuracy, capturedImage, workLocationId, attendanceType) => {
   console.log(capturedImage);
   return apiClient.post('/attendance/mark', {
     latitude,
@@ -50,6 +50,7 @@ export const markAttendance = (latitude, longitude, timestamp, accuracy, capture
     accuracy,
     capturedImage,
     workLocationId,
+    attendanceType,
   });
 };
 
@@ -62,6 +63,12 @@ export const getAttendanceRecords = (limit = 10, offset = 0) => {
 export const getAllAttendanceRecords = (limit = 50, offset = 0) => {
   return apiClient.get('/attendance/records/all', {
     params: { limit, offset },
+  });
+};
+
+export const getAttendanceStatus = (locationId) => {
+  return apiClient.get('/attendance/status', {
+    params: { locationId },
   });
 };
 

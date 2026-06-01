@@ -117,7 +117,10 @@ exports.Prisma.AttendanceScalarFieldEnum = {
   workLon: 'workLon',
   distanceFromWork: 'distanceFromWork',
   status: 'status',
-  remarks: 'remarks'
+  remarks: 'remarks',
+  attendanceType: 'attendanceType',
+  workLocationId: 'workLocationId',
+  workLocationName: 'workLocationName'
 };
 
 exports.Prisma.WorkLocationScalarFieldEnum = {
@@ -137,9 +140,19 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
 exports.Role = exports.$Enums.Role = {
   ADMIN: 'ADMIN',
   STAFF: 'STAFF'
+};
+
+exports.AttendanceType = exports.$Enums.AttendanceType = {
+  CHECK_IN: 'CHECK_IN',
+  CHECK_OUT: 'CHECK_OUT'
 };
 
 exports.Prisma.ModelName = {
@@ -195,13 +208,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/lib/generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum Role {\n  ADMIN\n  STAFF\n}\n\nmodel Staff {\n  id            String         @id\n  name          String\n  email         String         @unique\n  password      String\n  department    String\n  role          Role           @default(STAFF)\n  workLat       Float\n  workLon       Float\n  workAddress   String\n  attendance    Attendance[]\n  workLocations WorkLocation[]\n}\n\nmodel Attendance {\n  id               String   @id\n  staffId          String\n  staffName        String\n  timestamp        DateTime @default(now())\n  currentLat       Float\n  currentLon       Float\n  accuracy         Float    @default(0.0)\n  workLat          Float\n  workLon          Float\n  distanceFromWork Float\n  status           String\n  remarks          String\n  staff            Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)\n}\n\nmodel WorkLocation {\n  id      String @id @default(uuid())\n  userId  String\n  name    String\n  workLat Float\n  workLon Float\n  staff   Staff  @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n",
-  "inlineSchemaHash": "c3e67a35717e522509b2a3370e54e25d9878c425fbe47473b012d8cab1cae90d",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/lib/generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum Role {\n  ADMIN\n  STAFF\n}\n\nmodel Staff {\n  id            String         @id\n  name          String\n  email         String         @unique\n  password      String\n  department    String\n  role          Role           @default(STAFF)\n  workLat       Float\n  workLon       Float\n  workAddress   String\n  attendance    Attendance[]\n  workLocations WorkLocation[]\n}\n\nenum AttendanceType {\n  CHECK_IN\n  CHECK_OUT\n}\n\nmodel Attendance {\n  id               String         @id\n  staffId          String\n  staffName        String\n  timestamp        DateTime       @default(now())\n  currentLat       Float\n  currentLon       Float\n  accuracy         Float          @default(0.0)\n  workLat          Float\n  workLon          Float\n  distanceFromWork Float\n  status           String\n  remarks          String\n  attendanceType   AttendanceType @default(CHECK_IN)\n  workLocationId   String?\n  workLocationName String?\n  staff            Staff          @relation(fields: [staffId], references: [id], onDelete: Cascade)\n}\n\nmodel WorkLocation {\n  id      String @id @default(uuid())\n  userId  String\n  name    String\n  workLat Float\n  workLon Float\n  staff   Staff  @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n",
+  "inlineSchemaHash": "9e50bf98b42e33d14ab9b28c08cd68a2381fbc046220ea384a791008882c21d2",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Staff\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"department\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"Role\"},{\"name\":\"workLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"workLon\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"workAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"attendance\",\"kind\":\"object\",\"type\":\"Attendance\",\"relationName\":\"AttendanceToStaff\"},{\"name\":\"workLocations\",\"kind\":\"object\",\"type\":\"WorkLocation\",\"relationName\":\"StaffToWorkLocation\"}],\"dbName\":null},\"Attendance\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"staffId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"staffName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"timestamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"currentLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"currentLon\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"accuracy\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"workLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"workLon\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"distanceFromWork\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"remarks\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"staff\",\"kind\":\"object\",\"type\":\"Staff\",\"relationName\":\"AttendanceToStaff\"}],\"dbName\":null},\"WorkLocation\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"workLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"workLon\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"staff\",\"kind\":\"object\",\"type\":\"Staff\",\"relationName\":\"StaffToWorkLocation\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Staff\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"department\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"Role\"},{\"name\":\"workLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"workLon\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"workAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"attendance\",\"kind\":\"object\",\"type\":\"Attendance\",\"relationName\":\"AttendanceToStaff\"},{\"name\":\"workLocations\",\"kind\":\"object\",\"type\":\"WorkLocation\",\"relationName\":\"StaffToWorkLocation\"}],\"dbName\":null},\"Attendance\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"staffId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"staffName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"timestamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"currentLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"currentLon\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"accuracy\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"workLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"workLon\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"distanceFromWork\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"remarks\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"attendanceType\",\"kind\":\"enum\",\"type\":\"AttendanceType\"},{\"name\":\"workLocationId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"workLocationName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"staff\",\"kind\":\"object\",\"type\":\"Staff\",\"relationName\":\"AttendanceToStaff\"}],\"dbName\":null},\"WorkLocation\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"workLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"workLon\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"staff\",\"kind\":\"object\",\"type\":\"Staff\",\"relationName\":\"StaffToWorkLocation\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

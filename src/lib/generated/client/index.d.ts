@@ -40,11 +40,23 @@ export namespace $Enums {
 
 export type Role = (typeof Role)[keyof typeof Role]
 
+
+export const AttendanceType: {
+  CHECK_IN: 'CHECK_IN',
+  CHECK_OUT: 'CHECK_OUT'
+};
+
+export type AttendanceType = (typeof AttendanceType)[keyof typeof AttendanceType]
+
 }
 
 export type Role = $Enums.Role
 
 export const Role: typeof $Enums.Role
+
+export type AttendanceType = $Enums.AttendanceType
+
+export const AttendanceType: typeof $Enums.AttendanceType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -2330,6 +2342,9 @@ export namespace Prisma {
     distanceFromWork: number | null
     status: string | null
     remarks: string | null
+    attendanceType: $Enums.AttendanceType | null
+    workLocationId: string | null
+    workLocationName: string | null
   }
 
   export type AttendanceMaxAggregateOutputType = {
@@ -2345,6 +2360,9 @@ export namespace Prisma {
     distanceFromWork: number | null
     status: string | null
     remarks: string | null
+    attendanceType: $Enums.AttendanceType | null
+    workLocationId: string | null
+    workLocationName: string | null
   }
 
   export type AttendanceCountAggregateOutputType = {
@@ -2360,6 +2378,9 @@ export namespace Prisma {
     distanceFromWork: number
     status: number
     remarks: number
+    attendanceType: number
+    workLocationId: number
+    workLocationName: number
     _all: number
   }
 
@@ -2395,6 +2416,9 @@ export namespace Prisma {
     distanceFromWork?: true
     status?: true
     remarks?: true
+    attendanceType?: true
+    workLocationId?: true
+    workLocationName?: true
   }
 
   export type AttendanceMaxAggregateInputType = {
@@ -2410,6 +2434,9 @@ export namespace Prisma {
     distanceFromWork?: true
     status?: true
     remarks?: true
+    attendanceType?: true
+    workLocationId?: true
+    workLocationName?: true
   }
 
   export type AttendanceCountAggregateInputType = {
@@ -2425,6 +2452,9 @@ export namespace Prisma {
     distanceFromWork?: true
     status?: true
     remarks?: true
+    attendanceType?: true
+    workLocationId?: true
+    workLocationName?: true
     _all?: true
   }
 
@@ -2527,6 +2557,9 @@ export namespace Prisma {
     distanceFromWork: number
     status: string
     remarks: string
+    attendanceType: $Enums.AttendanceType
+    workLocationId: string | null
+    workLocationName: string | null
     _count: AttendanceCountAggregateOutputType | null
     _avg: AttendanceAvgAggregateOutputType | null
     _sum: AttendanceSumAggregateOutputType | null
@@ -2561,6 +2594,9 @@ export namespace Prisma {
     distanceFromWork?: boolean
     status?: boolean
     remarks?: boolean
+    attendanceType?: boolean
+    workLocationId?: boolean
+    workLocationName?: boolean
     staff?: boolean | StaffDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["attendance"]>
 
@@ -2577,6 +2613,9 @@ export namespace Prisma {
     distanceFromWork?: boolean
     status?: boolean
     remarks?: boolean
+    attendanceType?: boolean
+    workLocationId?: boolean
+    workLocationName?: boolean
     staff?: boolean | StaffDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["attendance"]>
 
@@ -2593,6 +2632,9 @@ export namespace Prisma {
     distanceFromWork?: boolean
     status?: boolean
     remarks?: boolean
+    attendanceType?: boolean
+    workLocationId?: boolean
+    workLocationName?: boolean
     staff?: boolean | StaffDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["attendance"]>
 
@@ -2609,9 +2651,12 @@ export namespace Prisma {
     distanceFromWork?: boolean
     status?: boolean
     remarks?: boolean
+    attendanceType?: boolean
+    workLocationId?: boolean
+    workLocationName?: boolean
   }
 
-  export type AttendanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "staffId" | "staffName" | "timestamp" | "currentLat" | "currentLon" | "accuracy" | "workLat" | "workLon" | "distanceFromWork" | "status" | "remarks", ExtArgs["result"]["attendance"]>
+  export type AttendanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "staffId" | "staffName" | "timestamp" | "currentLat" | "currentLon" | "accuracy" | "workLat" | "workLon" | "distanceFromWork" | "status" | "remarks" | "attendanceType" | "workLocationId" | "workLocationName", ExtArgs["result"]["attendance"]>
   export type AttendanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     staff?: boolean | StaffDefaultArgs<ExtArgs>
   }
@@ -2640,6 +2685,9 @@ export namespace Prisma {
       distanceFromWork: number
       status: string
       remarks: string
+      attendanceType: $Enums.AttendanceType
+      workLocationId: string | null
+      workLocationName: string | null
     }, ExtArgs["result"]["attendance"]>
     composites: {}
   }
@@ -3076,6 +3124,9 @@ export namespace Prisma {
     readonly distanceFromWork: FieldRef<"Attendance", 'Float'>
     readonly status: FieldRef<"Attendance", 'String'>
     readonly remarks: FieldRef<"Attendance", 'String'>
+    readonly attendanceType: FieldRef<"Attendance", 'AttendanceType'>
+    readonly workLocationId: FieldRef<"Attendance", 'String'>
+    readonly workLocationName: FieldRef<"Attendance", 'String'>
   }
     
 
@@ -4627,7 +4678,10 @@ export namespace Prisma {
     workLon: 'workLon',
     distanceFromWork: 'distanceFromWork',
     status: 'status',
-    remarks: 'remarks'
+    remarks: 'remarks',
+    attendanceType: 'attendanceType',
+    workLocationId: 'workLocationId',
+    workLocationName: 'workLocationName'
   };
 
   export type AttendanceScalarFieldEnum = (typeof AttendanceScalarFieldEnum)[keyof typeof AttendanceScalarFieldEnum]
@@ -4658,6 +4712,14 @@ export namespace Prisma {
   };
 
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   /**
@@ -4718,6 +4780,20 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AttendanceType'
+   */
+  export type EnumAttendanceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AttendanceType'>
+    
+
+
+  /**
+   * Reference to a field of type 'AttendanceType[]'
+   */
+  export type ListEnumAttendanceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AttendanceType[]'>
     
 
 
@@ -4834,6 +4910,9 @@ export namespace Prisma {
     distanceFromWork?: FloatFilter<"Attendance"> | number
     status?: StringFilter<"Attendance"> | string
     remarks?: StringFilter<"Attendance"> | string
+    attendanceType?: EnumAttendanceTypeFilter<"Attendance"> | $Enums.AttendanceType
+    workLocationId?: StringNullableFilter<"Attendance"> | string | null
+    workLocationName?: StringNullableFilter<"Attendance"> | string | null
     staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
   }
 
@@ -4850,6 +4929,9 @@ export namespace Prisma {
     distanceFromWork?: SortOrder
     status?: SortOrder
     remarks?: SortOrder
+    attendanceType?: SortOrder
+    workLocationId?: SortOrderInput | SortOrder
+    workLocationName?: SortOrderInput | SortOrder
     staff?: StaffOrderByWithRelationInput
   }
 
@@ -4869,6 +4951,9 @@ export namespace Prisma {
     distanceFromWork?: FloatFilter<"Attendance"> | number
     status?: StringFilter<"Attendance"> | string
     remarks?: StringFilter<"Attendance"> | string
+    attendanceType?: EnumAttendanceTypeFilter<"Attendance"> | $Enums.AttendanceType
+    workLocationId?: StringNullableFilter<"Attendance"> | string | null
+    workLocationName?: StringNullableFilter<"Attendance"> | string | null
     staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
   }, "id">
 
@@ -4885,6 +4970,9 @@ export namespace Prisma {
     distanceFromWork?: SortOrder
     status?: SortOrder
     remarks?: SortOrder
+    attendanceType?: SortOrder
+    workLocationId?: SortOrderInput | SortOrder
+    workLocationName?: SortOrderInput | SortOrder
     _count?: AttendanceCountOrderByAggregateInput
     _avg?: AttendanceAvgOrderByAggregateInput
     _max?: AttendanceMaxOrderByAggregateInput
@@ -4908,6 +4996,9 @@ export namespace Prisma {
     distanceFromWork?: FloatWithAggregatesFilter<"Attendance"> | number
     status?: StringWithAggregatesFilter<"Attendance"> | string
     remarks?: StringWithAggregatesFilter<"Attendance"> | string
+    attendanceType?: EnumAttendanceTypeWithAggregatesFilter<"Attendance"> | $Enums.AttendanceType
+    workLocationId?: StringNullableWithAggregatesFilter<"Attendance"> | string | null
+    workLocationName?: StringNullableWithAggregatesFilter<"Attendance"> | string | null
   }
 
   export type WorkLocationWhereInput = {
@@ -5071,6 +5162,9 @@ export namespace Prisma {
     distanceFromWork: number
     status: string
     remarks: string
+    attendanceType?: $Enums.AttendanceType
+    workLocationId?: string | null
+    workLocationName?: string | null
     staff: StaffCreateNestedOneWithoutAttendanceInput
   }
 
@@ -5087,6 +5181,9 @@ export namespace Prisma {
     distanceFromWork: number
     status: string
     remarks: string
+    attendanceType?: $Enums.AttendanceType
+    workLocationId?: string | null
+    workLocationName?: string | null
   }
 
   export type AttendanceUpdateInput = {
@@ -5101,6 +5198,9 @@ export namespace Prisma {
     distanceFromWork?: FloatFieldUpdateOperationsInput | number
     status?: StringFieldUpdateOperationsInput | string
     remarks?: StringFieldUpdateOperationsInput | string
+    attendanceType?: EnumAttendanceTypeFieldUpdateOperationsInput | $Enums.AttendanceType
+    workLocationId?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocationName?: NullableStringFieldUpdateOperationsInput | string | null
     staff?: StaffUpdateOneRequiredWithoutAttendanceNestedInput
   }
 
@@ -5117,6 +5217,9 @@ export namespace Prisma {
     distanceFromWork?: FloatFieldUpdateOperationsInput | number
     status?: StringFieldUpdateOperationsInput | string
     remarks?: StringFieldUpdateOperationsInput | string
+    attendanceType?: EnumAttendanceTypeFieldUpdateOperationsInput | $Enums.AttendanceType
+    workLocationId?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocationName?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AttendanceCreateManyInput = {
@@ -5132,6 +5235,9 @@ export namespace Prisma {
     distanceFromWork: number
     status: string
     remarks: string
+    attendanceType?: $Enums.AttendanceType
+    workLocationId?: string | null
+    workLocationName?: string | null
   }
 
   export type AttendanceUpdateManyMutationInput = {
@@ -5146,6 +5252,9 @@ export namespace Prisma {
     distanceFromWork?: FloatFieldUpdateOperationsInput | number
     status?: StringFieldUpdateOperationsInput | string
     remarks?: StringFieldUpdateOperationsInput | string
+    attendanceType?: EnumAttendanceTypeFieldUpdateOperationsInput | $Enums.AttendanceType
+    workLocationId?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocationName?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AttendanceUncheckedUpdateManyInput = {
@@ -5161,6 +5270,9 @@ export namespace Prisma {
     distanceFromWork?: FloatFieldUpdateOperationsInput | number
     status?: StringFieldUpdateOperationsInput | string
     remarks?: StringFieldUpdateOperationsInput | string
+    attendanceType?: EnumAttendanceTypeFieldUpdateOperationsInput | $Enums.AttendanceType
+    workLocationId?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocationName?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type WorkLocationCreateInput = {
@@ -5372,9 +5484,36 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type EnumAttendanceTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.AttendanceType | EnumAttendanceTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.AttendanceType[] | ListEnumAttendanceTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AttendanceType[] | ListEnumAttendanceTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAttendanceTypeFilter<$PrismaModel> | $Enums.AttendanceType
+  }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type StaffScalarRelationFilter = {
     is?: StaffWhereInput
     isNot?: StaffWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
   }
 
   export type AttendanceCountOrderByAggregateInput = {
@@ -5390,6 +5529,9 @@ export namespace Prisma {
     distanceFromWork?: SortOrder
     status?: SortOrder
     remarks?: SortOrder
+    attendanceType?: SortOrder
+    workLocationId?: SortOrder
+    workLocationName?: SortOrder
   }
 
   export type AttendanceAvgOrderByAggregateInput = {
@@ -5414,6 +5556,9 @@ export namespace Prisma {
     distanceFromWork?: SortOrder
     status?: SortOrder
     remarks?: SortOrder
+    attendanceType?: SortOrder
+    workLocationId?: SortOrder
+    workLocationName?: SortOrder
   }
 
   export type AttendanceMinOrderByAggregateInput = {
@@ -5429,6 +5574,9 @@ export namespace Prisma {
     distanceFromWork?: SortOrder
     status?: SortOrder
     remarks?: SortOrder
+    attendanceType?: SortOrder
+    workLocationId?: SortOrder
+    workLocationName?: SortOrder
   }
 
   export type AttendanceSumOrderByAggregateInput = {
@@ -5452,6 +5600,34 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type EnumAttendanceTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AttendanceType | EnumAttendanceTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.AttendanceType[] | ListEnumAttendanceTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AttendanceType[] | ListEnumAttendanceTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAttendanceTypeWithAggregatesFilter<$PrismaModel> | $Enums.AttendanceType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAttendanceTypeFilter<$PrismaModel>
+    _max?: NestedEnumAttendanceTypeFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type WorkLocationCountOrderByAggregateInput = {
@@ -5598,6 +5774,14 @@ export namespace Prisma {
     set?: Date | string
   }
 
+  export type EnumAttendanceTypeFieldUpdateOperationsInput = {
+    set?: $Enums.AttendanceType
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
   export type StaffUpdateOneRequiredWithoutAttendanceNestedInput = {
     create?: XOR<StaffCreateWithoutAttendanceInput, StaffUncheckedCreateWithoutAttendanceInput>
     connectOrCreate?: StaffCreateOrConnectWithoutAttendanceInput
@@ -5717,6 +5901,27 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type NestedEnumAttendanceTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.AttendanceType | EnumAttendanceTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.AttendanceType[] | ListEnumAttendanceTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AttendanceType[] | ListEnumAttendanceTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAttendanceTypeFilter<$PrismaModel> | $Enums.AttendanceType
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -5731,6 +5936,44 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedEnumAttendanceTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AttendanceType | EnumAttendanceTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.AttendanceType[] | ListEnumAttendanceTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AttendanceType[] | ListEnumAttendanceTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAttendanceTypeWithAggregatesFilter<$PrismaModel> | $Enums.AttendanceType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAttendanceTypeFilter<$PrismaModel>
+    _max?: NestedEnumAttendanceTypeFilter<$PrismaModel>
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type AttendanceCreateWithoutStaffInput = {
     id: string
     staffName: string
@@ -5743,6 +5986,9 @@ export namespace Prisma {
     distanceFromWork: number
     status: string
     remarks: string
+    attendanceType?: $Enums.AttendanceType
+    workLocationId?: string | null
+    workLocationName?: string | null
   }
 
   export type AttendanceUncheckedCreateWithoutStaffInput = {
@@ -5757,6 +6003,9 @@ export namespace Prisma {
     distanceFromWork: number
     status: string
     remarks: string
+    attendanceType?: $Enums.AttendanceType
+    workLocationId?: string | null
+    workLocationName?: string | null
   }
 
   export type AttendanceCreateOrConnectWithoutStaffInput = {
@@ -5825,6 +6074,9 @@ export namespace Prisma {
     distanceFromWork?: FloatFilter<"Attendance"> | number
     status?: StringFilter<"Attendance"> | string
     remarks?: StringFilter<"Attendance"> | string
+    attendanceType?: EnumAttendanceTypeFilter<"Attendance"> | $Enums.AttendanceType
+    workLocationId?: StringNullableFilter<"Attendance"> | string | null
+    workLocationName?: StringNullableFilter<"Attendance"> | string | null
   }
 
   export type WorkLocationUpsertWithWhereUniqueWithoutStaffInput = {
@@ -6002,6 +6254,9 @@ export namespace Prisma {
     distanceFromWork: number
     status: string
     remarks: string
+    attendanceType?: $Enums.AttendanceType
+    workLocationId?: string | null
+    workLocationName?: string | null
   }
 
   export type WorkLocationCreateManyStaffInput = {
@@ -6023,6 +6278,9 @@ export namespace Prisma {
     distanceFromWork?: FloatFieldUpdateOperationsInput | number
     status?: StringFieldUpdateOperationsInput | string
     remarks?: StringFieldUpdateOperationsInput | string
+    attendanceType?: EnumAttendanceTypeFieldUpdateOperationsInput | $Enums.AttendanceType
+    workLocationId?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocationName?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AttendanceUncheckedUpdateWithoutStaffInput = {
@@ -6037,6 +6295,9 @@ export namespace Prisma {
     distanceFromWork?: FloatFieldUpdateOperationsInput | number
     status?: StringFieldUpdateOperationsInput | string
     remarks?: StringFieldUpdateOperationsInput | string
+    attendanceType?: EnumAttendanceTypeFieldUpdateOperationsInput | $Enums.AttendanceType
+    workLocationId?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocationName?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AttendanceUncheckedUpdateManyWithoutStaffInput = {
@@ -6051,6 +6312,9 @@ export namespace Prisma {
     distanceFromWork?: FloatFieldUpdateOperationsInput | number
     status?: StringFieldUpdateOperationsInput | string
     remarks?: StringFieldUpdateOperationsInput | string
+    attendanceType?: EnumAttendanceTypeFieldUpdateOperationsInput | $Enums.AttendanceType
+    workLocationId?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocationName?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type WorkLocationUpdateWithoutStaffInput = {

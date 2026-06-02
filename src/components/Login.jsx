@@ -78,19 +78,6 @@ export default function Login({ onLoginSuccess }) {
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-
-        <div className="register-link-container">
-          <p>New employee? <Link href="/register" className="register-redirect">Register here</Link></p>
-        </div>
-
-        <div className="login-footer">
-          <p>Test Credentials:</p>
-          <div className="credentials-list">
-            <small>EMP001 / password123</small>
-            <small>EMP002 / password456</small>
-            <small>EMP003 / password789</small>
-          </div>
-        </div>
       </div>
     </div>
   );

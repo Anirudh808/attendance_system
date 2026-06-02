@@ -27,18 +27,20 @@
   justify-content: center;
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3FA8F4 0%, #39B44A 100%);
   color: white;
   font-size: 32px;
   font-weight: 700;
   border-radius: 50%;
   margin: 0 auto 15px;
+  font-family: var(--font-heading);
 }
 
 .profile-header h2 {
   font-size: 24px;
   color: #111827;
   margin-bottom: 5px;
+  font-family: var(--font-heading);
 }
 
 .department {
@@ -95,14 +97,14 @@
 
 .location-display {
   background: #f0f9ff;
-  border: 1px solid #bfdbfe;
+  border: 1px solid #bae6fd;
   border-radius: 8px;
   padding: 15px;
 }
 
 .address {
   font-size: 16px;
-  color: #1e40af;
+  color: var(--primary-dark);
   margin-bottom: 12px;
   font-weight: 600;
 }
@@ -121,12 +123,12 @@
 }
 
 .coord .label {
-  color: #0c4a6e;
+  color: #075985;
   font-weight: 500;
 }
 
 .coord .value {
-  color: #0c4a6e;
+  color: #075985;
   font-family: 'Courier New', monospace;
 }
 

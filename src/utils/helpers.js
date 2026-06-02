@@ -20,7 +20,6 @@ export const getCurrentLocation = () => {
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
         maximumAge: 0,
       }
     );

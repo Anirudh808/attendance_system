@@ -1,7 +1,7 @@
 .register-container {
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #f0f9ff 0%, #e6f9ed 100%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,6 +31,7 @@
 .register-header h1 {
   font-size: 24px;
   color: var(--gray-900);
+  font-family: var(--font-heading);
 }
 
 .back-to-login {
@@ -171,7 +172,7 @@
 
 .form-field input:focus, .form-field select:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(63, 168, 244, 0.15);
 }
 
 .form-field input:disabled {
@@ -224,7 +225,7 @@
   margin-top: 24px;
   width: 100%;
   padding: 14px;
-  background: var(--primary-color);
+  background: linear-gradient(to right, #3FA8F4, #39B44A);
   color: white;
   border: none;
   border-radius: 8px;
@@ -232,12 +233,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 4px 6px rgba(63, 168, 244, 0.2);
+  font-family: var(--font-primary);
 }
 
 .register-button:hover:not(:disabled) {
-  background: var(--primary-dark);
-  box-shadow: 0 6px 12px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 6px 12px rgba(57, 180, 74, 0.3);
   transform: translateY(-1px);
 }
 
@@ -310,7 +311,7 @@
 
 .map-search-input:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(63, 168, 244, 0.15);
 }
 
 /* Google Places Autocomplete dropdown container styling */

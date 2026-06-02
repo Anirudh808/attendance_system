@@ -1,7 +1,7 @@
 .admin-container {
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #f0f9ff 0%, #e6f9ed 100%);
   padding: 40px 20px;
   display: flex;
   justify-content: center;
@@ -35,6 +35,7 @@
   color: #111827;
   font-weight: 700;
   margin: 0;
+  font-family: var(--font-heading);
 }
 
 .header-actions {
@@ -57,14 +58,14 @@
 }
 
 .btn-primary {
-  background-color: #3b82f6;
+  background-color: var(--primary-color);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: var(--primary-dark);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 12px rgba(63, 168, 244, 0.2);
 }
 
 .btn-secondary {
@@ -87,12 +88,12 @@
 }
 
 .btn-success {
-  background-color: #10b981;
+  background-color: var(--success-color);
   color: white;
 }
 
 .btn-success:hover:not(:disabled) {
-  background-color: #059669;
+  background-color: #2e963c;
 }
 
 .btn:disabled {
@@ -138,7 +139,7 @@
 }
 
 .clickable-row:hover {
-  background-color: #f3f4f6;
+  background-color: #f0f9ff;
 }
 
 .badge {
@@ -156,8 +157,8 @@
 }
 
 .badge-staff {
-  background-color: #eff6ff;
-  color: #1e40af;
+  background-color: #e0f2fe;
+  color: #0369a1;
 }
 
 .badge-present {
@@ -197,6 +198,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-family: var(--font-heading);
 }
 
 .staff-info-header {
@@ -303,8 +305,8 @@
 }
 
 .location-form .form-field input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(63, 168, 244, 0.1);
 }
 
 .map-section {
@@ -580,12 +582,12 @@
 }
 
 .day-duration {
-  color: #2563eb;
-  background: #eff6ff;
+  color: var(--primary-color);
+  background: #f0f9ff;
   padding: 4px 10px;
   border-radius: 9999px;
   font-size: 12px;
-  border: 1px solid #dbeafe;
+  border: 1px solid #bae6fd;
 }
 
 .day-log-details {
@@ -611,7 +613,7 @@
 }
 
 .check-in-action {
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid var(--primary-color);
 }
 
 .check-out-action {
@@ -634,8 +636,8 @@
 }
 
 .action-badge.check-in {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: #e0f2fe;
+  color: #0369a1;
 }
 
 .action-badge.check-out {

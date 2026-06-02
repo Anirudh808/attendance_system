@@ -4,7 +4,7 @@
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3FA8F4 0%, #39B44A 100%);
 }
 
 .login-card {
@@ -25,12 +25,14 @@
 .logo {
   font-size: 48px;
   margin-bottom: 15px;
+  font-family: var(--font-heading);
 }
 
 .login-header h1 {
   font-size: 28px;
   color: #111827;
   margin-bottom: 8px;
+  font-family: var(--font-heading);
 }
 
 .login-header p {
@@ -67,8 +69,8 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(63, 168, 244, 0.15);
 }
 
 .form-group input:disabled {
@@ -87,7 +89,7 @@
 
 .login-button {
   padding: 12px 20px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(to right, #3FA8F4, #39B44A);
   color: white;
   border: none;
   border-radius: 8px;
@@ -96,11 +98,12 @@
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 10px;
+  font-family: var(--font-primary);
 }
 
 .login-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 10px 20px rgba(57, 180, 74, 0.3);
 }
 
 .login-button:disabled {
@@ -119,14 +122,14 @@
 }
 
 .register-redirect {
-  color: #3b82f6;
+  color: var(--primary-color);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s;
 }
 
 .register-redirect:hover {
-  color: #2563eb;
+  color: var(--primary-dark);
   text-decoration: underline;
 }
 

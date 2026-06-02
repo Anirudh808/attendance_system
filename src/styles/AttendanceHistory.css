@@ -19,6 +19,7 @@
   color: #111827;
   margin-bottom: 20px;
   text-align: center;
+  font-family: var(--font-heading);
 }
 
 .error-box {
@@ -90,7 +91,7 @@
 }
 
 .record-item.present {
-  border-left: 4px solid #10b981;
+  border-left: 4px solid var(--success-color);
 }
 
 .record-item.absent {
@@ -172,7 +173,7 @@
 
 .pagination-button {
   padding: 8px 12px;
-  background: #3b82f6;
+  background: var(--primary-color);
   color: white;
   border: none;
   border-radius: 6px;
@@ -180,11 +181,13 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-family: var(--font-primary);
 }
 
 .pagination-button:hover:not(:disabled) {
-  background: #2563eb;
+  background: var(--primary-dark);
   transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(63, 168, 244, 0.2);
 }
 
 .pagination-button:disabled {

@@ -120,6 +120,9 @@ export default function AttendanceHistoryPanel({ staff }) {
     return sortedGrouped;
   };
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const DAYS_PER_PAGE = 5;
+
   const filteredAttendance = staff.attendance?.filter(rec => {
     if (dateFilter) {
       const date = new Date(rec.timestamp);
@@ -136,6 +139,9 @@ export default function AttendanceHistoryPanel({ staff }) {
   });
 
   const dayLogs = getGroupedAttendance(filteredAttendance);
+  const totalPages = Math.ceil(dayLogs.length / DAYS_PER_PAGE);
+  const startIndex = (currentPage - 1) * DAYS_PER_PAGE;
+  const paginatedDayLogs = dayLogs.slice(startIndex, startIndex + DAYS_PER_PAGE);
 
   return (
     <div className="detail-left">
@@ -151,7 +157,10 @@ export default function AttendanceHistoryPanel({ staff }) {
             id="attendance-date-filter"
             type="date"
             value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
+            onChange={(e) => {
+              setDateFilter(e.target.value);
+              setCurrentPage(1);
+            }}
             className="date-filter-input"
           />
         </div>
@@ -160,7 +169,10 @@ export default function AttendanceHistoryPanel({ staff }) {
           <select
             id="attendance-location-filter"
             value={locationFilter}
-            onChange={(e) => setLocationFilter(e.target.value)}
+            onChange={(e) => {
+              setLocationFilter(e.target.value);
+              setCurrentPage(1);
+            }}
             className="location-filter-select"
           >
             <option value="">All Locations</option>
@@ -177,6 +189,7 @@ export default function AttendanceHistoryPanel({ staff }) {
             onClick={() => {
               setDateFilter('');
               setLocationFilter('');
+              setCurrentPage(1);
             }}
             className="btn-clear-filter"
           >
@@ -196,75 +209,101 @@ export default function AttendanceHistoryPanel({ staff }) {
           <p>No records found for the selected filters.</p>
         </div>
       ) : (
-        <div className="day-wise-logs">
-          {dayLogs.map((day, idx) => (
-            <div key={idx} className="day-log-card">
-              <div className="day-log-header">
-                <span className="day-date">{day.dateStr}</span>
-                <span className="day-sessions-count">🔄 {day.sessions?.length} Session(s)</span>
-              </div>
-              <div className="day-sessions-container">
-                {day.sessions.map((session, sIdx) => (
-                  <div key={session.id || sIdx} className="session-item-row">
-                    <div className="session-subheader">
-                      <span className="session-loc">📍 {session.locationName}</span>
-                      <span className="session-duration">⏱️ Duration: {session.durationStr}</span>
-                    </div>
-                    <div className="day-log-details">
-                      <div className="log-action check-in-action">
-                        <div className="action-header">
-                          <span className="action-badge check-in">Check In</span>
+        <>
+          <div className="day-wise-logs">
+            {paginatedDayLogs.map((day, idx) => (
+              <div key={idx} className="day-log-card">
+                <div className="day-log-header">
+                  <span className="day-date">{day.dateStr}</span>
+                  <span className="day-sessions-count">🔄 {day.sessions?.length} Session(s)</span>
+                </div>
+                <div className="day-sessions-container">
+                  {day.sessions.map((session, sIdx) => (
+                    <div key={session.id || sIdx} className="session-item-row">
+                      <div className="session-subheader">
+                        <span className="session-loc">📍 {session.locationName}</span>
+                        <span className="session-duration">⏱️ Duration: {session.durationStr}</span>
+                      </div>
+                      <div className="day-log-details">
+                        <div className="log-action check-in-action">
+                          <div className="action-header">
+                            <span className="action-badge check-in">Check In</span>
+                            {session.checkIn ? (
+                              <span className="action-time">
+                                {new Date(session.checkIn.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            ) : (
+                              <span className="action-time missing">Missing</span>
+                            )}
+                          </div>
                           {session.checkIn ? (
-                            <span className="action-time">
-                              {new Date(session.checkIn.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                            </span>
+                            <div className="action-meta">
+                              <p><strong>Accuracy:</strong> ±{session.checkIn.currentLocation?.accuracy || 0}m</p>
+                              <p><strong>Distance:</strong> {session.checkIn.distanceFromWork?.toFixed(1)}m away</p>
+                              <p className="remarks">📝 {session.checkIn.remarks}</p>
+                            </div>
                           ) : (
-                            <span className="action-time missing">Missing</span>
+                            <div className="action-meta empty">
+                              <p>No check-in record.</p>
+                            </div>
                           )}
                         </div>
-                        {session.checkIn ? (
-                          <div className="action-meta">
-                            <p><strong>Accuracy:</strong> ±{session.checkIn.currentLocation?.accuracy || 0}m</p>
-                            <p><strong>Distance:</strong> {session.checkIn.distanceFromWork?.toFixed(1)}m away</p>
-                            <p className="remarks">📝 {session.checkIn.remarks}</p>
-                          </div>
-                        ) : (
-                          <div className="action-meta empty">
-                            <p>No check-in record.</p>
-                          </div>
-                        )}
-                      </div>
 
-                      <div className="log-action check-out-action">
-                        <div className="action-header">
-                          <span className="action-badge check-out">Sign Off</span>
+                        <div className="log-action check-out-action">
+                          <div className="action-header">
+                            <span className="action-badge check-out">Sign Off</span>
+                            {session.checkOut ? (
+                              <span className="action-time">
+                                {new Date(session.checkOut.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            ) : (
+                              <span className="action-time missing">Missing</span>
+                            )}
+                          </div>
                           {session.checkOut ? (
-                            <span className="action-time">
-                              {new Date(session.checkOut.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                            </span>
+                            <div className="action-meta">
+                              <p><strong>Accuracy:</strong> ±{session.checkOut.currentLocation?.accuracy || 0}m</p>
+                              <p><strong>Distance:</strong> {session.checkOut.distanceFromWork?.toFixed(1)}m away</p>
+                              <p className="remarks">📝 {session.checkOut.remarks}</p>
+                            </div>
                           ) : (
-                            <span className="action-time missing">Missing</span>
+                            <div className="action-meta empty">
+                              <p>No sign-off record.</p>
+                            </div>
                           )}
                         </div>
-                        {session.checkOut ? (
-                          <div className="action-meta">
-                            <p><strong>Accuracy:</strong> ±{session.checkOut.currentLocation?.accuracy || 0}m</p>
-                            <p><strong>Distance:</strong> {session.checkOut.distanceFromWork?.toFixed(1)}m away</p>
-                            <p className="remarks">📝 {session.checkOut.remarks}</p>
-                          </div>
-                        ) : (
-                          <div className="action-meta empty">
-                            <p>No sign-off record.</p>
-                          </div>
-                        )}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button
+                type="button"
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="pagination-button"
+              >
+                Previous
+              </button>
+              <span className="page-info">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="pagination-button"
+              >
+                Next
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );

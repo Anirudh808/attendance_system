@@ -20,13 +20,15 @@ export default function Dashboard({ user, onLogout }) {
           <p>{user?.department} • {user?.email}</p>
         </div>
         
-        {/* Desktop static logout button */}
-        <button onClick={onLogout} className="logout-button">Logout</button>
+        {/* Desktop static logout button (hidden for Admin, who uses dropdown) */}
+        {user?.role !== 'ADMIN' && (
+          <button onClick={onLogout} className="logout-button">Logout</button>
+        )}
 
-        {/* Mobile Hamburger menu container */}
+        {/* Hamburger menu container */}
         <div className="menu-container">
           <button
-            className={`hamburger-button ${menuOpen ? 'open' : ''}`}
+            className={`hamburger-button ${menuOpen ? 'open' : ''} ${user?.role === 'ADMIN' ? 'show-desktop' : ''}`}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
@@ -44,6 +46,19 @@ export default function Dashboard({ user, onLogout }) {
                   <span>{user?.email}</span>
                 </div>
                 <hr className="dropdown-divider" />
+                
+                {user?.role === 'ADMIN' && (
+                  <>
+                    <Link href="/admin" className="dropdown-link" onClick={() => setMenuOpen(false)}>
+                      ⚙️ Admin Panel
+                    </Link>
+                    <Link href="/register" className="dropdown-link" onClick={() => setMenuOpen(false)}>
+                      ➕ Register
+                    </Link>
+                    <hr className="dropdown-divider" />
+                  </>
+                )}
+
                 <button onClick={onLogout} className="dropdown-logout-button">
                   Logout
                 </button>
@@ -72,16 +87,6 @@ export default function Dashboard({ user, onLogout }) {
         >
           👤 Profile
         </button>
-        {user?.role === 'ADMIN' && (
-          <>
-            <Link href="/admin" className="nav-button">
-              ⚙️ Admin Panel
-            </Link>
-            <Link href="/register" className="nav-button">
-              ➕ Register
-            </Link>
-          </>
-        )}
       </div>
 
       <div className="dashboard-content">

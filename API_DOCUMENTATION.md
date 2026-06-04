@@ -50,7 +50,7 @@ Authenticates a staff member and generates a 24-hour access token.
 - **Request Body (JSON)**:
   | Field | Type | Required | Description |
   | :--- | :--- | :--- | :--- |
-  | `staffId` | `string` | Yes | Unique identifier of the staff (e.g., `EMP001`) |
+  | `staffId` || `email` | `string` | Yes | Unique identifier of the staff (e.g., `EMP001`) |
   | `password` | `string` | Yes | Account password |
 
 - **Success Response**:

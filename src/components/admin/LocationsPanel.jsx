@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MapWidget from '@/components/attendance/MapWidget';
 
 const DEFAULT_CENTER = { lat: 13.0827, lng: 80.2707 }; // Chennai, India default
@@ -10,11 +10,42 @@ export default function LocationsPanel({ staff, authToken, triggerAlert, onRefre
   const [markerPosition, setMarkerPosition] = useState(DEFAULT_CENTER);
   const [formSaving, setFormSaving] = useState(false);
 
+  // Existing Locations Select States
+  const [existingLocations, setExistingLocations] = useState([]);
+  const [loadingLocations, setLoadingLocations] = useState(false);
+  const [selectedExistingIndex, setSelectedExistingIndex] = useState('');
+
+  // Fetch unique existing locations across the system
+  const fetchExistingLocations = async () => {
+    setLoadingLocations(true);
+    try {
+      const response = await fetch('/api/admin/work-location', {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to fetch existing locations');
+      setExistingLocations(data);
+    } catch (err) {
+      console.error('Fetch existing locations error:', err.message);
+    } finally {
+      setLoadingLocations(false);
+    }
+  };
+
+  // Fetch locations on mount when token is available
+  useEffect(() => {
+    if (authToken) {
+      fetchExistingLocations();
+    }
+  }, [authToken]);
+
   const handleStartAddLocation = () => {
     setEditorMode('add');
     setTargetLocationId('');
     setLocName('');
     setMarkerPosition(DEFAULT_CENTER);
+    setSelectedExistingIndex('');
+    fetchExistingLocations(); // Refresh list on opening add form
   };
 
   const handleStartEditLocation = (loc) => {
@@ -22,10 +53,24 @@ export default function LocationsPanel({ staff, authToken, triggerAlert, onRefre
     setTargetLocationId(loc.id);
     setLocName(loc.name);
     setMarkerPosition({ lat: loc.workLat, lng: loc.workLon });
+    setSelectedExistingIndex('');
   };
 
   const handleCancelEditor = () => {
     setEditorMode(null);
+  };
+
+  const handleSelectExistingChange = (e) => {
+    const idx = e.target.value;
+    setSelectedExistingIndex(idx);
+    if (idx === '') {
+      setLocName('');
+      setMarkerPosition(DEFAULT_CENTER);
+    } else {
+      const selected = existingLocations[idx];
+      setLocName(selected.name);
+      setMarkerPosition({ lat: selected.workLat, lng: selected.workLon });
+    }
   };
 
   const handleSaveLocation = async (e) => {
@@ -72,6 +117,7 @@ export default function LocationsPanel({ staff, authToken, triggerAlert, onRefre
 
       triggerAlert('success', data.message || 'Location saved successfully');
       setEditorMode(null);
+      fetchExistingLocations(); // Refresh unique locations list
       await onRefresh();
     } catch (err) {
       triggerAlert('error', err.message);
@@ -95,6 +141,7 @@ export default function LocationsPanel({ staff, authToken, triggerAlert, onRefre
       if (editorMode === 'edit' && targetLocationId === locId) {
         setEditorMode(null);
       }
+      fetchExistingLocations(); // Refresh unique locations list
       await onRefresh();
     } catch (err) {
       triggerAlert('error', err.message);
@@ -119,26 +166,55 @@ export default function LocationsPanel({ staff, authToken, triggerAlert, onRefre
             <span>{editorMode === 'add' ? 'New Work Location' : 'Edit Work Location'}</span>
           </div>
           <div className="form-grid">
+            {editorMode === 'add' && (
+              <div className="form-field" style={{ marginBottom: '12px' }}>
+                <label htmlFor="existing-loc-select">Choose from Existing Locations</label>
+                {loadingLocations ? (
+                  <p style={{ fontSize: '13px', color: '#6b7280', margin: '6px 0' }}>Loading locations...</p>
+                ) : (
+                  <select
+                    id="existing-loc-select"
+                    value={selectedExistingIndex}
+                    onChange={handleSelectExistingChange}
+                    className="location-select-dropdown"
+                    disabled={formSaving}
+                  >
+                    <option value="">-- Create a new custom location --</option>
+                    {existingLocations.map((loc, idx) => (
+                      <option key={idx} value={idx}>
+                        {loc.name} ({parseFloat(loc.workLat).toFixed(4)}, {parseFloat(loc.workLon).toFixed(4)})
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            )}
+
             <div className="form-field">
-              <label htmlFor="loc-name-input">Location Name / Address</label>
+              <label htmlFor="loc-name-input">
+                {editorMode === 'add' && selectedExistingIndex !== '' ? 'Location Name (Selected Existing)' : 'Location Name / Address'}
+              </label>
               <input
                 id="loc-name-input"
                 type="text"
                 placeholder="e.g. Coimbatore Branch, Sitra Office"
                 value={locName}
                 onChange={(e) => setLocName(e.target.value)}
-                disabled={formSaving}
+                disabled={formSaving || (editorMode === 'add' && selectedExistingIndex !== '')}
                 required
               />
             </div>
           </div>
 
           <div className="map-section">
-            <h4>Pinpoint Location</h4>
+            <h4>
+              {editorMode === 'add' && selectedExistingIndex !== '' ? 'Work Location Pin' : 'Pinpoint Location'}
+            </h4>
             <MapWidget
               markerPosition={markerPosition}
               setMarkerPosition={setMarkerPosition}
               setWorkAddress={setLocName}
+              readOnly={editorMode === 'add' && selectedExistingIndex !== ''}
             />
           </div>
 

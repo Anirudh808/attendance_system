@@ -274,3 +274,78 @@
     padding-left: 18px;
   }
 }
+
+/* Password Update Form Styling */
+.password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #fafbfc;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  margin-top: 5px;
+}
+
+.password-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.password-form .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.password-form .form-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.password-form .form-field input {
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #ffffff;
+  color: #1e293b;
+  width: 100%;
+}
+
+.password-form .form-field input:focus {
+  border-color: var(--primary-color, #3FA8F4);
+  box-shadow: 0 0 0 3px rgba(63, 168, 244, 0.1);
+}
+
+.password-form .btn-submit-pw {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  background-color: var(--primary-color, #3FA8F4);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.password-form .btn-submit-pw:hover:not(:disabled) {
+  background-color: var(--primary-dark, #2b93df);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(63, 168, 244, 0.2);
+}
+
+.password-form .btn-submit-pw:disabled {
+  background-color: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}

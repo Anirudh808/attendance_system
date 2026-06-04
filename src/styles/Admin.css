@@ -786,3 +786,169 @@
     padding: 10px 8px;
   }
 }
+
+/* Custom Deletion Modal & Button styles */
+.btn-delete {
+  background-color: transparent;
+  color: #ef4444;
+  border: 1px solid #fee2e2;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-delete:hover {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+  transform: translateY(-1px);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 90%;
+  max-width: 480px;
+  overflow: hidden;
+  animation: slideUp 0.25s ease-out;
+  border: 1px solid #f1f5f9;
+}
+
+.modal-header-danger {
+  background-color: #fee2e2;
+  padding: 16px 24px;
+  border-bottom: 1px solid #fca5a5;
+}
+
+.modal-header-danger h2 {
+  font-size: 18px;
+  color: #991b1b;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-body {
+  padding: 24px;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.modal-body p {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.text-danger-subtle {
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 0 !important;
+  background-color: #fef2f2;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border-left: 3px solid #ef4444;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background-color: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Custom Location Select Dropdown styling */
+.location-select-dropdown {
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background-color: #ffffff;
+  color: #1e293b;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.location-select-dropdown:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(63, 168, 244, 0.1);
+}
+
+/* Admin Registry Search styling */
+.registry-title-search {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-grow: 1;
+  width: 100%;
+}
+
+.registry-search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.registry-search-container .search-icon {
+  position: absolute;
+  left: 10px;
+  font-size: 14px;
+  pointer-events: none;
+  color: #94a3b8;
+}
+
+.registry-search-input {
+  padding: 6px 10px 6px 32px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, width 0.2s ease-in-out;
+  width: 200px;
+  background-color: #ffffff;
+  color: #1e293b;
+}
+
+.registry-search-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(63, 168, 244, 0.1);
+  width: 280px;
+}

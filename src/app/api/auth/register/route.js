@@ -140,7 +140,6 @@ export async function POST(request) {
         workAddress: cleanWorkAddress,
         workLocations: {
           create: {
-            id: `loc-${cleanId}`,
             name: cleanWorkAddress,
             workLat,
             workLon,

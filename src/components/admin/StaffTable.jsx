@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function StaffTable({ staffList, onRowClick }) {
+export default function StaffTable({ staffList, onRowClick, onDeleteClick, currentAdminId }) {
   if (staffList.length === 0) {
     return (
       <div className="empty-state">
@@ -19,6 +19,7 @@ export default function StaffTable({ staffList, onRowClick }) {
           <th>Email</th>
           <th>Department</th>
           <th>Role</th>
+          <th style={{ textAlign: 'center' }}>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -36,6 +37,24 @@ export default function StaffTable({ staffList, onRowClick }) {
               <span className={`badge ${staff.role === 'ADMIN' ? 'badge-admin' : 'badge-staff'}`}>
                 {staff.role}
               </span>
+            </td>
+            <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+              {staff.id !== currentAdminId ? (
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteClick(staff.id, staff.name);
+                  }}
+                  className="btn-delete"
+                  title="Delete Staff Member"
+                >
+                  🗑️
+                </button>
+              ) : (
+                <span style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', fontWeight: '500' }}>
+                  Current Session
+                </span>
+              )}
             </td>
           </tr>
         ))}

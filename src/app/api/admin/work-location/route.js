@@ -63,3 +63,53 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Failed to create work location', message: error.message }, { status: 500 });
   }
 }
+
+/**
+ * GET handler to return all unique work locations currently stored in the database.
+ * Access restricted to ADMIN role.
+ */
+export async function GET(request) {
+  try {
+    const caller = verifyAuth(request);
+    if (!caller) {
+      return NextResponse.json({ error: 'Unauthorized: Authentication required' }, { status: 401 });
+    }
+    if (caller.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+    }
+
+    const locations = await prisma.workLocation.findMany({
+      select: {
+        name: true,
+        workLat: true,
+        workLon: true
+      },
+      orderBy: {
+        name: 'asc'
+      }
+    });
+
+    // Unique locations by lowercase name and rounded coordinates
+    const uniqueLocationsMap = new Map();
+    for (const loc of locations) {
+      const latKey = parseFloat(loc.workLat).toFixed(5);
+      const lonKey = parseFloat(loc.workLon).toFixed(5);
+      const key = `${loc.name.trim().toLowerCase()}_${latKey}_${lonKey}`;
+      
+      if (!uniqueLocationsMap.has(key)) {
+        uniqueLocationsMap.set(key, {
+          name: loc.name.trim(),
+          workLat: loc.workLat,
+          workLon: loc.workLon
+        });
+      }
+    }
+
+    const uniqueLocations = Array.from(uniqueLocationsMap.values());
+
+    return NextResponse.json(uniqueLocations);
+  } catch (error) {
+    console.error('Admin get unique work locations error:', error);
+    return NextResponse.json({ error: 'Failed to fetch work locations', message: error.message }, { status: 500 });
+  }
+}

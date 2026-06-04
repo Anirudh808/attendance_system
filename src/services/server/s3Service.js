@@ -1,4 +1,4 @@
-import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 // Initialize S3 Client using environment variables
@@ -75,6 +75,25 @@ export const s3Service = {
     } catch (error) {
       console.error('Error uploading profile image to S3:', error);
       throw new Error(`Failed to upload profile image to S3: ${error.message}`);
+    }
+  },
+
+  /**
+   * Deletes a profile image from S3.
+   * 
+   * @param {string} key - S3 object key (e.g., b2of/UserID.jpg)
+   * @returns {Promise<Object>} S3 client send response
+   */
+  async deleteProfileImage(key) {
+    try {
+      const deleteObjectCommand = new DeleteObjectCommand({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: key,
+      });
+      return await s3Client.send(deleteObjectCommand);
+    } catch (error) {
+      console.error('Error deleting profile image from S3:', error);
+      throw new Error(`Failed to delete profile image from S3: ${error.message}`);
     }
   }
 };

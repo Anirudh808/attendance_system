@@ -7,15 +7,15 @@ const DEFAULT_CENTER = { lat: 13.0827, lng: 80.2707 }; // Chennai, India center 
  * Reusable MapWidget component handles Google Maps rendering, places autocomplete,
  * clicking on the map to relocate the marker, and dragging the marker.
  */
-export default function MapWidget({ markerPosition, setMarkerPosition, setWorkAddress }) {
+export default function MapWidget({ markerPosition, setMarkerPosition, setWorkAddress, readOnly = false }) {
   const map = useMap();
   const autocompleteInputRef = useRef(null);
   const placesLibrary = useMapsLibrary('places');
 
+  // Autocomplete search box setup (only in editable mode)
   useEffect(() => {
-    if (!map || !placesLibrary || !autocompleteInputRef.current) return;
+    if (readOnly || !map || !placesLibrary || !autocompleteInputRef.current) return;
 
-    // Initialize Places Autocomplete on search input
     const autocomplete = new window.google.maps.places.Autocomplete(autocompleteInputRef.current, {
       fields: ['geometry', 'formatted_address', 'name'],
     });
@@ -30,14 +30,21 @@ export default function MapWidget({ markerPosition, setMarkerPosition, setWorkAd
         setMarkerPosition(newPos);
         setWorkAddress(place.formatted_address || place.name || '');
         
-        // Pan the map and zoom in on search result location
         map.panTo(newPos);
         map.setZoom(16);
       }
     });
-  }, [map, placesLibrary, setMarkerPosition, setWorkAddress]);
+  }, [map, placesLibrary, setMarkerPosition, setWorkAddress, readOnly]);
+
+  // Smoothly pan map to center when marker position changes (e.g. on dropdown selection)
+  useEffect(() => {
+    if (map && markerPosition) {
+      map.panTo(markerPosition);
+    }
+  }, [map, markerPosition]);
 
   const handleMapClick = (event) => {
+    if (readOnly) return;
     if (event.latLng) {
       setMarkerPosition({
         lat: event.latLng.lat(),
@@ -47,6 +54,7 @@ export default function MapWidget({ markerPosition, setMarkerPosition, setWorkAd
   };
 
   const handleMarkerDragEnd = (event) => {
+    if (readOnly) return;
     if (event.latLng) {
       setMarkerPosition({
         lat: event.latLng.lat(),
@@ -57,27 +65,29 @@ export default function MapWidget({ markerPosition, setMarkerPosition, setWorkAd
 
   return (
     <>
-      <div className="map-search-container">
-        <input
-          ref={autocompleteInputRef}
-          type="text"
-          placeholder="🔍 Search location or address..."
-          className="map-search-input"
-          onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-        />
-      </div>
+      {!readOnly && (
+        <div className="map-search-container">
+          <input
+            ref={autocompleteInputRef}
+            type="text"
+            placeholder="🔍 Search location or address..."
+            className="map-search-input"
+            onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+          />
+        </div>
+      )}
       <div className="map-wrapper">
         <Map
           defaultCenter={DEFAULT_CENTER}
           defaultZoom={13}
-          onClick={handleMapClick}
-          gestureHandling="greedy"
+          onClick={readOnly ? null : handleMapClick}
+          gestureHandling={readOnly ? "none" : "greedy"}
           disableDefaultUI={true}
         >
           <Marker
             position={markerPosition}
-            draggable={true}
-            onDragEnd={handleMarkerDragEnd}
+            draggable={!readOnly}
+            onDragEnd={readOnly ? null : handleMarkerDragEnd}
           />
         </Map>
       </div>

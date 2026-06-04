@@ -1,19 +1,19 @@
 "use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { login } from '../services/api';
-import '../styles/Login.css';
+import React, { useState } from "react";
+import Link from "next/link";
+import { login } from "../services/api";
+import "../styles/Login.css";
 
 export default function Login({ onLoginSuccess }) {
-  const [loginId, setLoginId] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [loginId, setLoginId] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
@@ -21,12 +21,11 @@ export default function Login({ onLoginSuccess }) {
       const { token, staff } = response.data;
 
       // Save to localStorage
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('user', JSON.stringify(staff));
+      localStorage.setItem("authToken", token);
 
       onLoginSuccess(staff);
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed. Please try again.');
+      setError(err.response?.data?.error || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -70,12 +69,8 @@ export default function Login({ onLoginSuccess }) {
 
           {error && <div className="error-message">{error}</div>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="login-button"
-          >
-            {loading ? 'Logging in...' : 'Login'}
+          <button type="submit" disabled={loading} className="login-button">
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
       </div>

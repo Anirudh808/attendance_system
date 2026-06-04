@@ -1,27 +1,34 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Login from '../components/Login';
-import Dashboard from '../components/Dashboard';
+import React, { useState, useEffect } from "react";
+import Login from "../components/Login";
+import Dashboard from "../components/Dashboard";
 
 export default function Home() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('authToken');
-
-    if (storedUser && storedToken) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Error parsing stored user:", e);
+    async function fetchUser() {
+      // Check if user is already logged in
+      const storedToken = localStorage.getItem("authToken");
+      if (storedToken) {
+        setIsLoading(true);
+        try {
+          const staff = await getStaffByIdOrEmail(storedToken);
+          return staff;
+        } catch (e) {
+          console.error("Error fetching user on load:", e);
+        } finally {
+          setIsLoading(false);
+        }
       }
     }
-
-    setIsLoading(false);
+    fetchUser().then((staff) => {
+      if (staff) {
+        setUser(staff);
+      }
+    });
   }, []);
 
   const handleLoginSuccess = (userData) => {
@@ -29,8 +36,8 @@ export default function Home() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
     setUser(null);
   };
 

@@ -34,7 +34,14 @@ export const attendanceService = {
   async getWorkLocation(id, userId) {
     try {
       return await prisma.workLocation.findFirst({
-        where: { id, userId },
+        where: {
+          id,
+          staff: {
+            some: {
+              id: userId
+            }
+          }
+        },
       });
     } catch (error) {
       console.error(`Error fetching work location ${id}:`, error);
@@ -47,13 +54,13 @@ export const attendanceService = {
    * 
    * @param {number} latitude - Current latitude
    * @param {number} longitude - Current longitude
-   * @param {Object} staff - Staff record with workLat and workLon
+   * @param {Object} workLocation - WorkLocation record with workLat and workLon
    * @param {number} [accuracy=0] - GPS accuracy in meters
    * @returns {{distance: number, isWithinWorkRadius: boolean}}
    */
-  verifyWorkRadius(latitude, longitude, staff, accuracy = 0) {
-    const workLat = staff.workLat;
-    const workLon = staff.workLon;
+  verifyWorkRadius(latitude, longitude, workLocation, accuracy = 0) {
+    const workLat = workLocation.workLat;
+    const workLon = workLocation.workLon;
     
     const gpsAccuracy = accuracy || 0;
     const distance = Math.max(0, calculateDistance(latitude, longitude, workLat, workLon) - gpsAccuracy);

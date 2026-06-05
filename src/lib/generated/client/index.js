@@ -19,7 +19,10 @@ const {
   skip,
   Decimal,
   Debug,
-  objectEnumValues,
+  DbNull,
+  JsonNull,
+  AnyNull,
+  NullTypes,
   makeStrictEnum,
   Extensions,
   warnOnce,
@@ -27,7 +30,7 @@ const {
   Public,
   getRuntime,
   createParam,
-} = require('./runtime/library.js')
+} = require('./runtime/client.js')
 
 
 const Prisma = {}
@@ -36,12 +39,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.19.3
- * Query Engine version: c2990dca591cba766e3b7ef5d9e8a84796e47ab7
+ * Prisma Client JS version: 7.8.0
+ * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
  */
 Prisma.prismaVersion = {
-  client: "6.19.3",
-  engine: "c2990dca591cba766e3b7ef5d9e8a84796e47ab7"
+  client: "7.8.0",
+  engine: "3c6e192761c0362d496ed980de936e2f3cebcd3a"
 }
 
 Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
@@ -69,15 +72,11 @@ Prisma.defineExtension = Extensions.defineExtension
 /**
  * Shorthand utilities for JSON filtering
  */
-Prisma.DbNull = objectEnumValues.instances.DbNull
-Prisma.JsonNull = objectEnumValues.instances.JsonNull
-Prisma.AnyNull = objectEnumValues.instances.AnyNull
+Prisma.DbNull = DbNull
+Prisma.JsonNull = JsonNull
+Prisma.AnyNull = AnyNull
 
-Prisma.NullTypes = {
-  DbNull: objectEnumValues.classes.DbNull,
-  JsonNull: objectEnumValues.classes.JsonNull,
-  AnyNull: objectEnumValues.classes.AnyNull
-}
+Prisma.NullTypes = NullTypes
 
 
 
@@ -100,10 +99,7 @@ exports.Prisma.StaffScalarFieldEnum = {
   email: 'email',
   password: 'password',
   department: 'department',
-  role: 'role',
-  workLat: 'workLat',
-  workLon: 'workLon',
-  workAddress: 'workAddress'
+  role: 'role'
 };
 
 exports.Prisma.AttendanceScalarFieldEnum = {
@@ -126,7 +122,6 @@ exports.Prisma.AttendanceScalarFieldEnum = {
 
 exports.Prisma.WorkLocationScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
   name: 'name',
   workLat: 'workLat',
   workLon: 'workLon'
@@ -165,92 +160,31 @@ exports.Prisma.ModelName = {
  * Create the Client
  */
 const config = {
-  "generator": {
-    "name": "client",
-    "provider": {
-      "fromEnvVar": null,
-      "value": "prisma-client-js"
-    },
-    "output": {
-      "value": "C:\\Users\\SPEXTRUM\\Desktop\\staff_attendance_system\\nextjs_app\\src\\lib\\generated\\client",
-      "fromEnvVar": null
-    },
-    "config": {
-      "engineType": "library"
-    },
-    "binaryTargets": [
-      {
-        "fromEnvVar": null,
-        "value": "windows",
-        "native": true
-      }
-    ],
-    "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\SPEXTRUM\\Desktop\\staff_attendance_system\\nextjs_app\\prisma\\schema.prisma",
-    "isCustomOutput": true
-  },
-  "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../../.env"
-  },
-  "relativePath": "../../../../prisma",
-  "clientVersion": "6.19.3",
-  "engineVersion": "c2990dca591cba766e3b7ef5d9e8a84796e47ab7",
-  "datasourceNames": [
-    "db"
-  ],
+  "previewFeatures": [],
+  "clientVersion": "7.8.0",
+  "engineVersion": "3c6e192761c0362d496ed980de936e2f3cebcd3a",
   "activeProvider": "postgresql",
-  "postinstall": false,
-  "inlineDatasources": {
-    "db": {
-      "url": {
-        "fromEnvVar": "DATABASE_URL",
-        "value": null
-      }
-    }
-  },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/lib/generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum Role {\n  ADMIN\n  STAFF\n}\n\nmodel Staff {\n  id            String         @id\n  name          String\n  email         String         @unique\n  password      String\n  department    String\n  role          Role           @default(STAFF)\n  workLat       Float\n  workLon       Float\n  workAddress   String\n  attendance    Attendance[]\n  workLocations WorkLocation[]\n}\n\nenum AttendanceType {\n  CHECK_IN\n  CHECK_OUT\n}\n\nmodel Attendance {\n  id               String         @id\n  staffId          String\n  staffName        String\n  timestamp        DateTime       @default(now())\n  currentLat       Float\n  currentLon       Float\n  accuracy         Float          @default(0.0)\n  workLat          Float\n  workLon          Float\n  distanceFromWork Float\n  status           String\n  remarks          String\n  attendanceType   AttendanceType @default(CHECK_IN)\n  workLocationId   String?\n  workLocationName String?\n  staff            Staff          @relation(fields: [staffId], references: [id], onDelete: Cascade)\n}\n\nmodel WorkLocation {\n  id      String @id @default(uuid())\n  userId  String\n  name    String\n  workLat Float\n  workLon Float\n  staff   Staff  @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n",
-  "inlineSchemaHash": "9e50bf98b42e33d14ab9b28c08cd68a2381fbc046220ea384a791008882c21d2",
-  "copyEngine": true
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/lib/generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nenum Role {\n  ADMIN\n  STAFF\n}\n\nmodel Staff {\n  id            String         @id\n  name          String\n  email         String         @unique\n  password      String\n  department    String\n  role          Role           @default(STAFF)\n  attendance    Attendance[]\n  workLocations WorkLocation[] @relation(\"StaffWorkLocations\")\n}\n\nenum AttendanceType {\n  CHECK_IN\n  CHECK_OUT\n}\n\nmodel Attendance {\n  id               String         @id\n  staffId          String\n  staffName        String\n  timestamp        DateTime       @default(now())\n  currentLat       Float\n  currentLon       Float\n  accuracy         Float          @default(0.0)\n  workLat          Float\n  workLon          Float\n  distanceFromWork Float\n  status           String\n  remarks          String\n  attendanceType   AttendanceType @default(CHECK_IN)\n  workLocationId   String?\n  workLocationName String?\n  staff            Staff          @relation(fields: [staffId], references: [id], onDelete: Cascade)\n}\n\nmodel WorkLocation {\n  id      String  @id @default(uuid())\n  name    String\n  workLat Float\n  workLon Float\n  staff   Staff[] @relation(\"StaffWorkLocations\")\n}\n"
 }
 
-const fs = require('fs')
-
-config.dirname = __dirname
-if (!fs.existsSync(path.join(__dirname, 'schema.prisma'))) {
-  const alternativePaths = [
-    "src/lib/generated/client",
-    "lib/generated/client",
-  ]
-  
-  const alternativePath = alternativePaths.find((altPath) => {
-    return fs.existsSync(path.join(process.cwd(), altPath, 'schema.prisma'))
-  }) ?? alternativePaths[0]
-
-  config.dirname = path.join(process.cwd(), alternativePath)
-  config.isBundled = true
-}
-
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Staff\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"name\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"email\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":true,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"password\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"department\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"role\",\"kind\":\"enum\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Role\",\"nativeType\":null,\"default\":\"STAFF\",\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"workLat\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"workLon\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"workAddress\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"attendance\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Attendance\",\"nativeType\":null,\"relationName\":\"AttendanceToStaff\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"workLocations\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"WorkLocation\",\"nativeType\":null,\"relationName\":\"StaffToWorkLocation\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"Attendance\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"staffId\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"staffName\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"timestamp\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"DateTime\",\"nativeType\":null,\"default\":{\"name\":\"now\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"currentLat\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"currentLon\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"accuracy\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Float\",\"nativeType\":null,\"default\":0,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"workLat\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"workLon\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"distanceFromWork\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"status\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"remarks\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"attendanceType\",\"kind\":\"enum\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"AttendanceType\",\"nativeType\":null,\"default\":\"CHECK_IN\",\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"workLocationId\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"workLocationName\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"staff\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Staff\",\"nativeType\":null,\"relationName\":\"AttendanceToStaff\",\"relationFromFields\":[\"staffId\"],\"relationToFields\":[\"id\"],\"relationOnDelete\":\"Cascade\",\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"WorkLocation\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"String\",\"nativeType\":null,\"default\":{\"name\":\"uuid\",\"args\":[4]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"userId\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"name\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"workLat\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"workLon\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"staff\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Staff\",\"nativeType\":null,\"relationName\":\"StaffToWorkLocation\",\"relationFromFields\":[\"userId\"],\"relationToFields\":[\"id\"],\"relationOnDelete\":\"Cascade\",\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false}},\"enums\":{\"Role\":{\"values\":[{\"name\":\"ADMIN\",\"dbName\":null},{\"name\":\"STAFF\",\"dbName\":null}],\"dbName\":null},\"AttendanceType\":{\"values\":[{\"name\":\"CHECK_IN\",\"dbName\":null},{\"name\":\"CHECK_OUT\",\"dbName\":null}],\"dbName\":null}},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Staff\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"department\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"Role\"},{\"name\":\"attendance\",\"kind\":\"object\",\"type\":\"Attendance\",\"relationName\":\"AttendanceToStaff\"},{\"name\":\"workLocations\",\"kind\":\"object\",\"type\":\"WorkLocation\",\"relationName\":\"StaffWorkLocations\"}],\"dbName\":null},\"Attendance\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"staffId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"staffName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"timestamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"currentLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"currentLon\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"accuracy\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"workLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"workLon\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"distanceFromWork\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"remarks\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"attendanceType\",\"kind\":\"enum\",\"type\":\"AttendanceType\"},{\"name\":\"workLocationId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"workLocationName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"staff\",\"kind\":\"object\",\"type\":\"Staff\",\"relationName\":\"AttendanceToStaff\"}],\"dbName\":null},\"WorkLocation\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"workLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"workLon\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"staff\",\"kind\":\"object\",\"type\":\"Staff\",\"relationName\":\"StaffWorkLocations\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
-config.engineWasm = undefined
-config.compilerWasm = undefined
+config.parameterizationSchema = {
+  strings: JSON.parse("[\"where\",\"orderBy\",\"cursor\",\"staff\",\"attendance\",\"_count\",\"workLocations\",\"Staff.findUnique\",\"Staff.findUniqueOrThrow\",\"Staff.findFirst\",\"Staff.findFirstOrThrow\",\"Staff.findMany\",\"data\",\"Staff.createOne\",\"Staff.createMany\",\"Staff.createManyAndReturn\",\"Staff.updateOne\",\"Staff.updateMany\",\"Staff.updateManyAndReturn\",\"create\",\"update\",\"Staff.upsertOne\",\"Staff.deleteOne\",\"Staff.deleteMany\",\"having\",\"_min\",\"_max\",\"Staff.groupBy\",\"Staff.aggregate\",\"Attendance.findUnique\",\"Attendance.findUniqueOrThrow\",\"Attendance.findFirst\",\"Attendance.findFirstOrThrow\",\"Attendance.findMany\",\"Attendance.createOne\",\"Attendance.createMany\",\"Attendance.createManyAndReturn\",\"Attendance.updateOne\",\"Attendance.updateMany\",\"Attendance.updateManyAndReturn\",\"Attendance.upsertOne\",\"Attendance.deleteOne\",\"Attendance.deleteMany\",\"_avg\",\"_sum\",\"Attendance.groupBy\",\"Attendance.aggregate\",\"WorkLocation.findUnique\",\"WorkLocation.findUniqueOrThrow\",\"WorkLocation.findFirst\",\"WorkLocation.findFirstOrThrow\",\"WorkLocation.findMany\",\"WorkLocation.createOne\",\"WorkLocation.createMany\",\"WorkLocation.createManyAndReturn\",\"WorkLocation.updateOne\",\"WorkLocation.updateMany\",\"WorkLocation.updateManyAndReturn\",\"WorkLocation.upsertOne\",\"WorkLocation.deleteOne\",\"WorkLocation.deleteMany\",\"WorkLocation.groupBy\",\"WorkLocation.aggregate\",\"AND\",\"OR\",\"NOT\",\"id\",\"name\",\"workLat\",\"workLon\",\"equals\",\"in\",\"notIn\",\"lt\",\"lte\",\"gt\",\"gte\",\"not\",\"contains\",\"startsWith\",\"endsWith\",\"staffId\",\"staffName\",\"timestamp\",\"currentLat\",\"currentLon\",\"accuracy\",\"distanceFromWork\",\"status\",\"remarks\",\"AttendanceType\",\"attendanceType\",\"workLocationId\",\"workLocationName\",\"email\",\"password\",\"department\",\"Role\",\"role\",\"every\",\"some\",\"none\",\"is\",\"isNot\",\"connectOrCreate\",\"upsert\",\"set\",\"disconnect\",\"delete\",\"connect\",\"updateMany\",\"deleteMany\",\"createMany\",\"increment\",\"decrement\",\"multiply\",\"divide\"]"),
+  graph: "vQEfMAsEAABsACAGAABtACA_AABpADBAAAALABBBAABpADBCAQAAAAFDAQBqACFeAQAAAAFfAQBqACFgAQBqACFiAABrYiIBAAAAAQAgEwMAAHUAID8AAHEAMEAAAAMAEEEAAHEAMEIBAGoAIUQIAG8AIUUIAG8AIVEBAGoAIVIBAGoAIVNAAHIAIVQIAG8AIVUIAG8AIVYIAG8AIVcIAG8AIVgBAGoAIVkBAGoAIVsAAHNbIlwBAHQAIV0BAHQAIQMDAAC3AQAgXAAAnAEAIF0AAJwBACATAwAAdQAgPwAAcQAwQAAAAwAQQQAAcQAwQgEAAAABRAgAbwAhRQgAbwAhUQEAagAhUgEAagAhU0AAcgAhVAgAbwAhVQgAbwAhVggAbwAhVwgAbwAhWAEAagAhWQEAagAhWwAAc1siXAEAdAAhXQEAdAAhAwAAAAMAIAEAAAQAMAIAAAUAIAgDAABwACA_AABuADBAAAAHABBBAABuADBCAQBqACFDAQBqACFECABvACFFCABvACEBAwAAtgEAIAgDAABwACA_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_AABSADBAAABPABBBAABSADBCAQBTACFDAQBTACFECABUACFFCABUACEDAAAABwAgAQAATgAwGAAATwAgAwAAAAcAIAEAAAgAMAIAAAkAIAc_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_AACEAQAwQAAAhQEAEEEAAIQBADBCAQBqACFDAQBqACFeAQBqACFfAQBqACFgAQBqACFiAABrYiIGQgEAewAhQwEAewAhXgEAewAhXwEAewAhYAEAewAhYgAAhwFiIgFqAAAAYgIHBAAAiQEAIEIBAHsAIUMBAHsAIV4BAHsAIV8BAHsAIWABAHsAIWIAAIcBYiILEwAAigEAMBQAAI8BADBoAACLAQAwaQAAjAEAMGoAAI4BADBrAACOAQAwbAAAjgEAMG0AAI4BADBuAACQAQAwbwAAkQEAMHAAAI0BACAOQgEAAAABRAgAAAABRQgAAAABUgEAAAABU0AAAAABVAgAAAABVQgAAAABVggAAAABVwgAAAABWAEAAAABWQEAAAABWwAAAFsCXAEAAAABXQEAAAABAgAAAAUAIBMAAJgBACADAAAABQAgEwAAmAEAIBQAAJcBACABDAAAvQEAMBMDAAB1ACA_AABxADBAAAADABBBAABxADBCAQAAAAFECABvACFFCABvACFRAQBqACFSAQBqACFTQAByACFUCABvACFVCABvACFWCABvACFXCABvACFYAQBqACFZAQBqACFbAABzWyJcAQB0ACFdAQB0ACECAAAABQAgDAAAlwEAIAIAAACSAQAgDAAAkwEAIBI_AACRAQAwQAAAkgEAEEEAAJEBADBCAQBqACFECABvACFFCABvACFRAQBqACFSAQBqACFTQAByACFUCABvACFVCABvACFWCABvACFXCABvACFYAQBqACFZAQBqACFbAABzWyJcAQB0ACFdAQB0ACESPwAAkQEAMEAAAJIBABBBAACRAQAwQgEAagAhRAgAbwAhRQgAbwAhUQEAagAhUgEAagAhU0AAcgAhVAgAbwAhVQgAbwAhVggAbwAhVwgAbwAhWAEAagAhWQEAagAhWwAAc1siXAEAdAAhXQEAdAAhDkIBAHsAIUQIAHwAIUUIAHwAIVIBAHsAIVNAAJQBACFUCAB8ACFVCAB8ACFWCAB8ACFXCAB8ACFYAQB7ACFZAQB7ACFbAACVAVsiXAEAlgEAIV0BAJYBACEBakAAAAABAWoAAABbAgFqAQAAAAEOQgEAewAhRAgAfAAhRQgAfAAhUgEAewAhU0AAlAEAIVQIAHwAIVUIAHwAIVYIAHwAIVcIAHwAIVgBAHsAIVkBAHsAIVsAAJUBWyJcAQCWAQAhXQEAlgEAIQ5CAQAAAAFECAAAAAFFCAAAAAFSAQAAAAFTQAAAAAFUCAAAAAFVCAAAAAFWCAAAAAFXCAAAAAFYAQAAAAFZAQAAAAFbAAAAWwJcAQAAAAFdAQAAAAEHBAAAmgEAIEIBAAAAAUMBAAAAAV4BAAAAAV8BAAAAAWABAAAAAWIAAABiAgQTAACKAQAwaAAAiwEAMG0AAI4BADBwAACNAQAgAxMAAH4AMGgAAH8AMG0AAIEBADAAAAAAAAAFEwAAuAEAIBQAALsBACBoAAC5AQAgaQAAugEAIG0AAAEAIAMTAAC4AQAgaAAAuQEAIG0AAAEAIAAAAAoTAACoAQAwFAAArAEAMGgAAKkBADBpAACqAQAwagAAqwEAMGsAAKsBADBsAACrAQAwbQAAqwEAMG4AAK0BADBvAACuAQAwBEIBAAAAAUMBAAAAAUQIAAAAAUUIAAAAAQIAAAAJACATAACyAQAgAwAAAAkAIBMAALIBACAUAACxAQAgCAMAAHAAID8AAG4AMEAAAAcAEEEAAG4AMEIBAAAAAUMBAGoAIUQIAG8AIUUIAG8AIQIAAAAJACAMAACxAQAgAgAAAK8BACAMAACwAQAgBz8AAK4BADBAAACvAQAQQQAArgEAMEIBAGoAIUMBAGoAIUQIAG8AIUUIAG8AIQc_AACuAQAwQAAArwEAEEEAAK4BADBCAQBqACFDAQBqACFECABvACFFCABvACEEQgEAewAhQwEAewAhRAgAfAAhRQgAfAAhBEIBAHsAIUMBAHsAIUQIAHwAIUUIAHwAIQRCAQAAAAFDAQAAAAFECAAAAAFFCAAAAAEDEwAAqAEAMGgAAKkBADBtAACrAQAwAAAAAgQAALQBACAGAAC1AQAgBwYAALMBACBCAQAAAAFDAQAAAAFeAQAAAAFfAQAAAAFgAQAAAAFiAAAAYgICAAAAAQAgEwAAuAEAIAMAAAALACATAAC4AQAgFAAAvAEAIAkAAAALACAGAACnAQAgDAAAvAEAIEIBAHsAIUMBAHsAIV4BAHsAIV8BAHsAIWABAHsAIWIAAIcBYiIHBgAApwEAIEIBAHsAIUMBAHsAIV4BAHsAIV8BAHsAIWABAHsAIWIAAIcBYiIOQgEAAAABRAgAAAABRQgAAAABUgEAAAABU0AAAAABVAgAAAABVQgAAAABVggAAAABVwgAAAABWAEAAAABWQEAAAABWwAAAFsCXAEAAAABXQEAAAABAwQGAgUABQYKAwEDAAECAw0BBQAEAQMOAAIEDwAGEAAAAAADBQAKGQALGgAMAAAAAwUAChkACxoADAEDAAEBAwABBQUAERkAFBoAFSsAEiwAEwAAAAAABQUAERkAFBoAFSsAEiwAEwAABQUAGhkAHRoAHisAGywAHAAAAAAABQUAGhkAHRoAHisAGywAHAcCAQgRAQkSAQoTAQsUAQ0WAQ4YBg8ZBxAbAREdBhIeCBUfARYgARchBhskCRwlDR0mAh4nAh8oAiApAiEqAiIsAiMuBiQvDiUxAiYzBic0Dyg1Aik2Aio3Bi06EC47Fi88AzA9AzE-AzI_AzNAAzRCAzVEBjZFFzdHAzhJBjlKGDpLAztMAzxNBj1QGT5RHw"
+}
+config.compilerWasm = {
+      getRuntime: async () => require('./query_compiler_fast_bg.js'),
+      getQueryCompilerWasmModule: async () => {
+        const { Buffer } = require('node:buffer')
+        const { wasm } = require('./query_compiler_fast_bg.wasm-base64.js')
+        const queryCompilerWasmFileBytes = Buffer.from(wasm, 'base64')
 
-
-const { warnEnvConflicts } = require('./runtime/library.js')
-
-warnEnvConflicts({
-    rootEnvPath: config.relativeEnvPaths.rootEnvPath && path.resolve(config.dirname, config.relativeEnvPaths.rootEnvPath),
-    schemaEnvPath: config.relativeEnvPaths.schemaEnvPath && path.resolve(config.dirname, config.relativeEnvPaths.schemaEnvPath)
-})
+        return new WebAssembly.Module(queryCompilerWasmFileBytes)
+      },
+      importName: './query_compiler_fast_bg.js',
+    }
 
 const PrismaClient = getPrismaClient(config)
 exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
-
-// file annotations for bundling tools to include these files
-path.join(__dirname, "query_engine-windows.dll.node");
-path.join(process.cwd(), "src/lib/generated/client/query_engine-windows.dll.node")
-// file annotations for bundling tools to include these files
-path.join(__dirname, "schema.prisma");
-path.join(process.cwd(), "src/lib/generated/client/schema.prisma")

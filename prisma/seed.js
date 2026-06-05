@@ -1,8 +1,14 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require('../src/lib/generated/client');
+const { PrismaPg } = require('@prisma/adapter-pg');
+const pg = require('pg');
 const fs = require('fs/promises');
 const path = require('path');
 
-const prisma = new PrismaClient();
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log('Starting database seeding...');
@@ -35,6 +41,25 @@ async function main() {
     const workLon = Number(s.workLocation?.longitude || 0);
     const workAddress = s.workLocation?.address || 'Office';
 
+    // Ensure the work location exists
+    let location = await prisma.workLocation.findFirst({
+      where: {
+        name: { equals: workAddress, mode: 'insensitive' },
+        workLat,
+        workLon
+      }
+    });
+
+    if (!location) {
+      location = await prisma.workLocation.create({
+        data: {
+          name: workAddress,
+          workLat,
+          workLon
+        }
+      });
+    }
+
     await prisma.staff.upsert({
       where: { id: s.id },
       update: {
@@ -42,9 +67,9 @@ async function main() {
         email: s.email,
         password: s.password,
         department: s.department,
-        workLat,
-        workLon,
-        workAddress,
+        workLocations: {
+          connect: { id: location.id }
+        }
       },
       create: {
         id: s.id,
@@ -52,9 +77,9 @@ async function main() {
         email: s.email,
         password: s.password,
         department: s.department,
-        workLat,
-        workLon,
-        workAddress,
+        workLocations: {
+          connect: { id: location.id }
+        }
       },
     });
     console.log(`Upserted staff: ${s.name} (${s.id})`);

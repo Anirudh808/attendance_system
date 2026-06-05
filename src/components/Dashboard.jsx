@@ -52,7 +52,7 @@ export default function Dashboard({ user, onLogout }) {
                     <Link href="/admin" className="dropdown-link" onClick={() => setMenuOpen(false)}>
                       ⚙️ Admin Panel
                     </Link>
-                    <Link href="/register" className="dropdown-link" onClick={() => setMenuOpen(false)}>
+                    <Link href="/admin/register" className="dropdown-link" onClick={() => setMenuOpen(false)}>
                       ➕ Register
                     </Link>
                     <hr className="dropdown-divider" />

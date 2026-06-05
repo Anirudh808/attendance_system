@@ -27,7 +27,6 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 403 || error.response?.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
         // Let the app state handle redirection instead of forced page reload,
         // or redirect to homepage if required.
         window.location.href = '/';
@@ -39,6 +38,10 @@ apiClient.interceptors.response.use(
 
 export const login = (identifier, password) => {
   return apiClient.post('/auth/login', { staffId: identifier, password });
+};
+
+export const getCurrentUser = () => {
+  return apiClient.get('/auth/me');
 };
 
 export const markAttendance = (latitude, longitude, timestamp, accuracy, capturedImage, workLocationId, attendanceType) => {

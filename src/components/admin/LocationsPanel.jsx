@@ -105,6 +105,7 @@ export default function LocationsPanel({ staff, authToken, triggerAlert, onRefre
             'Authorization': `Bearer ${authToken}`
           },
           body: JSON.stringify({
+            userId: staff.id,
             name: locName,
             workLat: markerPosition.lat,
             workLon: markerPosition.lng
@@ -130,7 +131,7 @@ export default function LocationsPanel({ staff, authToken, triggerAlert, onRefre
     if (!window.confirm('Are you sure you want to delete this work location?')) return;
     
     try {
-      const response = await fetch(`/api/admin/work-location/${locId}`, {
+      const response = await fetch(`/api/admin/work-location/${locId}?userId=${staff.id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${authToken}` }
       });

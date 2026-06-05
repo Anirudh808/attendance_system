@@ -5,7 +5,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -20,11 +19,8 @@ model Staff {
   password      String
   department    String
   role          Role           @default(STAFF)
-  workLat       Float
-  workLon       Float
-  workAddress   String
   attendance    Attendance[]
-  workLocations WorkLocation[]
+  workLocations WorkLocation[] @relation("StaffWorkLocations")
 }
 
 enum AttendanceType {
@@ -52,10 +48,9 @@ model Attendance {
 }
 
 model WorkLocation {
-  id      String @id @default(uuid())
-  userId  String
+  id      String  @id @default(uuid())
   name    String
   workLat Float
   workLon Float
-  staff   Staff  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  staff   Staff[] @relation("StaffWorkLocations")
 }

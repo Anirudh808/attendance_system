@@ -42,7 +42,18 @@ export async function GET(request, { params }) {
     // Exclude password from response for security
     const { password, ...safeStaff } = staff;
 
-    return NextResponse.json(safeStaff);
+    const primaryLocation = staff.workLocations[0] || null;
+    const responseData = {
+      ...safeStaff,
+      workLocation: primaryLocation ? {
+        id: primaryLocation.id,
+        latitude: primaryLocation.workLat,
+        longitude: primaryLocation.workLon,
+        address: primaryLocation.name,
+      } : null
+    };
+
+    return NextResponse.json(responseData);
   } catch (error) {
     console.error('Admin get staff detail error:', error);
     return NextResponse.json({ error: 'Failed to fetch staff details', message: error.message }, { status: 500 });

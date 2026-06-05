@@ -3,12 +3,12 @@ import { prisma } from '@/lib/prisma';
 import { verifyAuth } from '@/lib/auth';
 
 /**
- * PUT handler to update a work location.
+ * PUT handler to update a work location connection for an employee.
  * Access restricted to ADMIN role.
  */
 export async function PUT(request, { params }) {
   try {
-    const { id } = await params;
+    const { id } = await params; // Old location ID
 
     const caller = verifyAuth(request);
     if (!caller) {
@@ -19,13 +19,14 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const { name, workLat, workLon } = body;
+    const { userId, name, workLat, workLon } = body;
 
     // Validate inputs
-    if (!name || workLat === undefined || workLon === undefined) {
-      return NextResponse.json({ error: 'Missing required fields (name, workLat, workLon)' }, { status: 400 });
+    if (!userId || !name || workLat === undefined || workLon === undefined) {
+      return NextResponse.json({ error: 'Missing required fields (userId, name, workLat, workLon)' }, { status: 400 });
     }
 
+    const cleanUserId = userId.toString().trim();
     const cleanName = name.toString().trim();
     const parsedLat = parseFloat(workLat);
     const parsedLon = parseFloat(workLon);
@@ -38,26 +39,74 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: 'Location name is required' }, { status: 400 });
     }
 
-    // Verify location exists
-    const locationExists = await prisma.workLocation.findUnique({ where: { id } });
-    if (!locationExists) {
+    // Verify staff exists
+    const staffExists = await prisma.staff.findUnique({ where: { id: cleanUserId } });
+    if (!staffExists) {
+      return NextResponse.json({ error: 'Target staff member not found' }, { status: 404 });
+    }
+
+    // Verify old location exists
+    const oldLocationExists = await prisma.workLocation.findUnique({ where: { id } });
+    if (!oldLocationExists) {
       return NextResponse.json({ error: 'Work location not found' }, { status: 404 });
     }
 
-    // Update Work Location
-    const updatedLocation = await prisma.workLocation.update({
-      where: { id },
+    // 1. Disconnect the old location from this staff member
+    await prisma.staff.update({
+      where: { id: cleanUserId },
       data: {
-        name: cleanName,
+        workLocations: {
+          disconnect: { id }
+        }
+      }
+    });
+
+    // 2. Find or create the new location
+    let newLocation = await prisma.workLocation.findFirst({
+      where: {
+        name: { equals: cleanName, mode: 'insensitive' },
         workLat: parsedLat,
         workLon: parsedLon
       }
     });
 
+    if (!newLocation) {
+      newLocation = await prisma.workLocation.create({
+        data: {
+          name: cleanName,
+          workLat: parsedLat,
+          workLon: parsedLon
+        }
+      });
+    }
+
+    // 3. Connect the new location to this staff member
+    await prisma.staff.update({
+      where: { id: cleanUserId },
+      data: {
+        workLocations: {
+          connect: { id: newLocation.id }
+        }
+      }
+    });
+
+    // 4. Clean up the old location if no users are connected to it anymore
+    const remainingUsers = await prisma.staff.count({
+      where: {
+        workLocations: {
+          some: { id }
+        }
+      }
+    });
+
+    if (remainingUsers === 0) {
+      await prisma.workLocation.delete({ where: { id } });
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Work location updated successfully',
-      location: updatedLocation
+      location: newLocation
     });
   } catch (error) {
     console.error('Admin update work location error:', error);
@@ -66,12 +115,14 @@ export async function PUT(request, { params }) {
 }
 
 /**
- * DELETE handler to remove a work location.
+ * DELETE handler to remove a work location mapping from a user.
  * Access restricted to ADMIN role.
  */
 export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
 
     const caller = verifyAuth(request);
     if (!caller) {
@@ -81,20 +132,42 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing userId parameter' }, { status: 400 });
+    }
+
     // Verify location exists
     const locationExists = await prisma.workLocation.findUnique({ where: { id } });
     if (!locationExists) {
       return NextResponse.json({ error: 'Work location not found' }, { status: 404 });
     }
 
-    // Delete Work Location
-    await prisma.workLocation.delete({
-      where: { id }
+    // 1. Disconnect the location from the user
+    await prisma.staff.update({
+      where: { id: userId },
+      data: {
+        workLocations: {
+          disconnect: { id }
+        }
+      }
     });
+
+    // 2. Clean up the location if no users are connected to it anymore
+    const remainingUsers = await prisma.staff.count({
+      where: {
+        workLocations: {
+          some: { id }
+        }
+      }
+    });
+
+    if (remainingUsers === 0) {
+      await prisma.workLocation.delete({ where: { id } });
+    }
 
     return NextResponse.json({
       success: true,
-      message: 'Work location deleted successfully'
+      message: 'Work location removed from user successfully'
     });
   } catch (error) {
     console.error('Admin delete work location error:', error);

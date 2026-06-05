@@ -43,20 +43,39 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Target staff member not found' }, { status: 404 });
     }
 
-    // Create Work Location
-    const newLocation = await prisma.workLocation.create({
-      data: {
-        userId: cleanUserId,
-        name: cleanName,
+    // Find or create the work location
+    let location = await prisma.workLocation.findFirst({
+      where: {
+        name: { equals: cleanName, mode: 'insensitive' },
         workLat: parsedLat,
         workLon: parsedLon
+      }
+    });
+
+    if (!location) {
+      location = await prisma.workLocation.create({
+        data: {
+          name: cleanName,
+          workLat: parsedLat,
+          workLon: parsedLon
+        }
+      });
+    }
+
+    // Connect the location to the staff member
+    await prisma.staff.update({
+      where: { id: cleanUserId },
+      data: {
+        workLocations: {
+          connect: { id: location.id }
+        }
       }
     });
 
     return NextResponse.json({
       success: true,
       message: 'Work location added successfully',
-      location: newLocation
+      location: location
     }, { status: 201 });
   } catch (error) {
     console.error('Admin create work location error:', error);
@@ -80,6 +99,7 @@ export async function GET(request) {
 
     const locations = await prisma.workLocation.findMany({
       select: {
+        id: true,
         name: true,
         workLat: true,
         workLon: true
@@ -98,6 +118,7 @@ export async function GET(request) {
       
       if (!uniqueLocationsMap.has(key)) {
         uniqueLocationsMap.set(key, {
+          id: loc.id,
           name: loc.name.trim(),
           workLat: loc.workLat,
           workLon: loc.workLon

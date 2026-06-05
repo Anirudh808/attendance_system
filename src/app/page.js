@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Login from "../components/Login";
 import Dashboard from "../components/Dashboard";
+import { getCurrentUser } from "../services/api";
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -10,25 +11,23 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchUser() {
-      // Check if user is already logged in
       const storedToken = localStorage.getItem("authToken");
-      if (storedToken) {
-        setIsLoading(true);
-        try {
-          const staff = await getStaffByIdOrEmail(storedToken);
-          return staff;
-        } catch (e) {
-          console.error("Error fetching user on load:", e);
-        } finally {
-          setIsLoading(false);
-        }
+      if (!storedToken) {
+        setIsLoading(false);
+        return;
+      }
+      setIsLoading(true);
+      try {
+        const response = await getCurrentUser();
+        setUser(response.data);
+      } catch (e) {
+        console.error("Error fetching user on load:", e);
+        localStorage.removeItem("authToken");
+      } finally {
+        setIsLoading(false);
       }
     }
-    fetchUser().then((staff) => {
-      if (staff) {
-        setUser(staff);
-      }
-    });
+    fetchUser();
   }, []);
 
   const handleLoginSuccess = (userData) => {
@@ -37,7 +36,6 @@ export default function Home() {
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
     setUser(null);
   };
 

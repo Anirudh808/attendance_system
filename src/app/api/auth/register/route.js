@@ -24,7 +24,7 @@ export async function POST(request) {
     }
 
     const contentType = request.headers.get('content-type') || '';
-    let id, name, email, password, department, role, workLat, workLon, workAddress, imageBuffer, imageContentType;
+    let id, name, email, password, department, role, workLocationId, workLat, workLon, workAddress, imageBuffer, imageContentType;
 
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
@@ -34,6 +34,8 @@ export async function POST(request) {
       password = formData.get('password');
       department = formData.get('department');
       role = formData.get('role');
+      workLocationId = formData.get('workLocationId');
+      
       const rawLat = formData.get('workLat');
       const rawLon = formData.get('workLon');
       workLat = rawLat ? parseFloat(rawLat.toString()) : undefined;
@@ -54,6 +56,7 @@ export async function POST(request) {
       password = body.password;
       department = body.department;
       role = body.role;
+      workLocationId = body.workLocationId;
       workLat = body.workLat !== undefined ? parseFloat(body.workLat) : undefined;
       workLon = body.workLon !== undefined ? parseFloat(body.workLon) : undefined;
       workAddress = body.workAddress;
@@ -83,17 +86,21 @@ export async function POST(request) {
     const cleanPassword = password?.toString().trim();
     const cleanDepartment = department?.toString().trim();
     const cleanWorkAddress = workAddress?.toString().trim();
+    const cleanLocationId = workLocationId?.toString().trim();
     
     let cleanRole = role?.toString().trim().toUpperCase();
     if (cleanRole !== 'ADMIN' && cleanRole !== 'STAFF') {
       cleanRole = 'STAFF';
     }
 
-    // 2. Validate inputs
-    if (!cleanId || !cleanName || !cleanEmail || !cleanPassword || !cleanDepartment || workLat === undefined || isNaN(workLat) || workLon === undefined || isNaN(workLon) || !cleanWorkAddress) {
+    // 2. Validate inputs: Require either an existing location ID or a new location coords and name
+    const hasExistingLocation = !!cleanLocationId;
+    const hasNewLocation = (workLat !== undefined && !isNaN(workLat) && workLon !== undefined && !isNaN(workLon) && !!cleanWorkAddress);
+
+    if (!cleanId || !cleanName || !cleanEmail || !cleanPassword || !cleanDepartment || (!hasExistingLocation && !hasNewLocation)) {
       return NextResponse.json({ 
         error: 'Missing or invalid fields', 
-        message: 'All fields (id, name, email, password, department, workLat, workLon, workAddress) are required.' 
+        message: 'All fields (id, name, email, password, department) are required, along with either an existing workLocationId or a new work location (workLat, workLon, workAddress).' 
       }, { status: 400 });
     }
 
@@ -126,7 +133,37 @@ export async function POST(request) {
     const s3Key = `b2of/${cleanId}.jpg`;
     await s3Service.uploadProfileImage(imageBuffer, s3Key, imageContentType);
 
-    // 4. Create staff record in the database
+    // 4. Find or create the initial work location
+    let location;
+    if (hasExistingLocation) {
+      location = await prisma.workLocation.findUnique({ where: { id: cleanLocationId } });
+      if (!location) {
+        return NextResponse.json({ 
+          error: 'Location not found', 
+          message: 'The selected work location does not exist.' 
+        }, { status: 404 });
+      }
+    } else {
+      location = await prisma.workLocation.findFirst({
+        where: {
+          name: { equals: cleanWorkAddress, mode: 'insensitive' },
+          workLat: parseFloat(workLat),
+          workLon: parseFloat(workLon)
+        }
+      });
+
+      if (!location) {
+        location = await prisma.workLocation.create({
+          data: {
+            name: cleanWorkAddress,
+            workLat: parseFloat(workLat),
+            workLon: parseFloat(workLon)
+          }
+        });
+      }
+    }
+
+    // 5. Create staff record in the database (WITHOUT workLat, workLon, workAddress columns)
     const staff = await prisma.staff.create({
       data: {
         id: cleanId,
@@ -135,15 +172,8 @@ export async function POST(request) {
         password: cleanPassword, // Aligning with plain text password in login API for prototype validation
         department: cleanDepartment,
         role: cleanRole,
-        workLat,
-        workLon,
-        workAddress: cleanWorkAddress,
         workLocations: {
-          create: {
-            name: cleanWorkAddress,
-            workLat,
-            workLon,
-          }
+          connect: { id: location.id }
         }
       },
       include: {
@@ -161,9 +191,10 @@ export async function POST(request) {
         department: staff.department,
         role: staff.role,
         workLocation: {
-          latitude: staff.workLat,
-          longitude: staff.workLon,
-          address: staff.workAddress,
+          id: location.id,
+          latitude: location.workLat,
+          longitude: location.workLon,
+          address: location.name,
         },
         workLocations: staff.workLocations,
         profileImageKey: s3Key,

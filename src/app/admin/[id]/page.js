@@ -25,24 +25,34 @@ export default function AdminStaffDetailPage() {
 
   // Authenticate user on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('authToken');
-    if (!storedUser || !storedToken) {
-      router.push('/');
-      return;
-    }
-    try {
-      const parsedUser = JSON.parse(storedUser);
-      if (parsedUser.role !== 'ADMIN') {
+    async function checkAuth() {
+      const storedToken = localStorage.getItem('authToken');
+      if (!storedToken) {
         router.push('/');
         return;
       }
-      setAuthToken(storedToken);
-      setCheckingAuth(false);
-    } catch (e) {
-      router.push('/');
-      return;
+      try {
+        const response = await fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${storedToken}` }
+        });
+        if (!response.ok) {
+          localStorage.removeItem('authToken');
+          router.push('/');
+          return;
+        }
+        const data = await response.json();
+        if (data.role !== 'ADMIN') {
+          router.push('/');
+          return;
+        }
+        setAuthToken(storedToken);
+        setCheckingAuth(false);
+      } catch (e) {
+        console.error('Admin authentication error:', e);
+        router.push('/');
+      }
     }
+    checkAuth();
   }, [router]);
 
   // Fetch staff detail when authenticated

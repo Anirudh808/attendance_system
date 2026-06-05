@@ -3,7 +3,7 @@
  * Client
 **/
 
-import * as runtime from './runtime/library.js';
+import * as runtime from './runtime/client.js';
 import $Types = runtime.Types // general types
 import $Public = runtime.Types.Public
 import $Utils = runtime.Types.Utils
@@ -64,13 +64,15 @@ export const AttendanceType: typeof $Enums.AttendanceType
  * Type-safe database client for TypeScript & Node.js
  * @example
  * ```
- * const prisma = new PrismaClient()
+ * const prisma = new PrismaClient({
+ *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+ * })
  * // Fetch zero or more Staff
  * const staff = await prisma.staff.findMany()
  * ```
  *
  *
- * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+ * Read more in our [docs](https://pris.ly/d/client).
  */
 export class PrismaClient<
   ClientOptions extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions,
@@ -85,13 +87,15 @@ export class PrismaClient<
    * Type-safe database client for TypeScript & Node.js
    * @example
    * ```
-   * const prisma = new PrismaClient()
+   * const prisma = new PrismaClient({
+   *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+   * })
    * // Fetch zero or more Staff
    * const staff = await prisma.staff.findMany()
    * ```
    *
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+   * Read more in our [docs](https://pris.ly/d/client).
    */
 
   constructor(optionsArg ?: Prisma.Subset<ClientOptions, Prisma.PrismaClientOptions>);
@@ -114,7 +118,7 @@ export class PrismaClient<
    * const result = await prisma.$executeRaw`UPDATE User SET cool = ${true} WHERE email = ${'user@email.com'};`
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
 
@@ -126,7 +130,7 @@ export class PrismaClient<
    * const result = await prisma.$executeRawUnsafe('UPDATE User SET cool = $1 WHERE email = $2 ;', true, 'user@email.com')
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
 
@@ -137,7 +141,7 @@ export class PrismaClient<
    * const result = await prisma.$queryRaw`SELECT * FROM User WHERE id = ${1} OR email = ${'user@email.com'};`
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
 
@@ -149,7 +153,7 @@ export class PrismaClient<
    * const result = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE id = $1 OR email = $2;', 1, 'user@email.com')
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
 
@@ -165,12 +169,11 @@ export class PrismaClient<
    * ])
    * ```
    * 
-   * Read more in our [docs](https://www.prisma.io/docs/concepts/components/prisma-client/transactions).
+   * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
    */
-  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
 
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
-
 
   $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb<ClientOptions>, ExtArgs, $Utils.Call<Prisma.TypeMapCb<ClientOptions>, {
     extArgs: ExtArgs
@@ -245,14 +248,6 @@ export namespace Prisma {
   export type DecimalJsLike = runtime.DecimalJsLike
 
   /**
-   * Metrics
-   */
-  export type Metrics = runtime.Metrics
-  export type Metric<T> = runtime.Metric<T>
-  export type MetricHistogram = runtime.MetricHistogram
-  export type MetricHistogramBucket = runtime.MetricHistogramBucket
-
-  /**
   * Extensions
   */
   export import Extension = $Extensions.UserArgs
@@ -263,11 +258,12 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.19.3
-   * Query Engine version: c2990dca591cba766e3b7ef5d9e8a84796e47ab7
+   * Prisma Client JS version: 7.8.0
+   * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
    */
   export type PrismaVersion = {
     client: string
+    engine: string
   }
 
   export const prismaVersion: PrismaVersion
@@ -654,9 +650,6 @@ export namespace Prisma {
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
 
 
-  export type Datasources = {
-    db?: Datasource
-  }
 
   interface TypeMapCb<ClientOptions = {}> extends $Utils.Fn<{extArgs: $Extensions.InternalArgs }, $Utils.Record<string, any>> {
     returns: Prisma.TypeMap<this['params']['extArgs'], ClientOptions extends { omit: infer OmitOptions } ? OmitOptions : {}>
@@ -922,14 +915,6 @@ export namespace Prisma {
   export type ErrorFormat = 'pretty' | 'colorless' | 'minimal'
   export interface PrismaClientOptions {
     /**
-     * Overwrites the datasource url from your schema.prisma file
-     */
-    datasources?: Datasources
-    /**
-     * Overwrites the datasource url from your schema.prisma file
-     */
-    datasourceUrl?: string
-    /**
      * @default "colorless"
      */
     errorFormat?: ErrorFormat
@@ -955,7 +940,7 @@ export namespace Prisma {
      *  { emit: 'stdout', level: 'error' }
      * 
      * ```
-     * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
+     * Read more in our [docs](https://pris.ly/d/logging).
      */
     log?: (LogLevel | LogDefinition)[]
     /**
@@ -971,7 +956,11 @@ export namespace Prisma {
     /**
      * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-planetscale`
      */
-    adapter?: runtime.SqlDriverAdapterFactory | null
+    adapter?: runtime.SqlDriverAdapterFactory
+    /**
+     * Prisma Accelerate URL allowing the client to connect through Accelerate instead of a direct database.
+     */
+    accelerateUrl?: string
     /**
      * Global configuration for omitting model fields by default.
      * 
@@ -987,6 +976,22 @@ export namespace Prisma {
      * ```
      */
     omit?: Prisma.GlobalOmitConfig
+    /**
+     * SQL commenter plugins that add metadata to SQL queries as comments.
+     * Comments follow the sqlcommenter format: https://google.github.io/sqlcommenter/
+     * 
+     * @example
+     * ```
+     * const prisma = new PrismaClient({
+     *   adapter,
+     *   comments: [
+     *     traceContext(),
+     *     queryInsights(),
+     *   ],
+     * })
+     * ```
+     */
+    comments?: runtime.SqlCommenterPlugin[]
   }
   export type GlobalOmitConfig = {
     staff?: StaffOmit
@@ -1108,6 +1113,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type WorkLocationCountOutputType
+   */
+
+  export type WorkLocationCountOutputType = {
+    staff: number
+  }
+
+  export type WorkLocationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    staff?: boolean | WorkLocationCountOutputTypeCountStaffArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * WorkLocationCountOutputType without action
+   */
+  export type WorkLocationCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkLocationCountOutputType
+     */
+    select?: WorkLocationCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * WorkLocationCountOutputType without action
+   */
+  export type WorkLocationCountOutputTypeCountStaffArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StaffWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -1117,20 +1153,8 @@ export namespace Prisma {
 
   export type AggregateStaff = {
     _count: StaffCountAggregateOutputType | null
-    _avg: StaffAvgAggregateOutputType | null
-    _sum: StaffSumAggregateOutputType | null
     _min: StaffMinAggregateOutputType | null
     _max: StaffMaxAggregateOutputType | null
-  }
-
-  export type StaffAvgAggregateOutputType = {
-    workLat: number | null
-    workLon: number | null
-  }
-
-  export type StaffSumAggregateOutputType = {
-    workLat: number | null
-    workLon: number | null
   }
 
   export type StaffMinAggregateOutputType = {
@@ -1140,9 +1164,6 @@ export namespace Prisma {
     password: string | null
     department: string | null
     role: $Enums.Role | null
-    workLat: number | null
-    workLon: number | null
-    workAddress: string | null
   }
 
   export type StaffMaxAggregateOutputType = {
@@ -1152,9 +1173,6 @@ export namespace Prisma {
     password: string | null
     department: string | null
     role: $Enums.Role | null
-    workLat: number | null
-    workLon: number | null
-    workAddress: string | null
   }
 
   export type StaffCountAggregateOutputType = {
@@ -1164,22 +1182,9 @@ export namespace Prisma {
     password: number
     department: number
     role: number
-    workLat: number
-    workLon: number
-    workAddress: number
     _all: number
   }
 
-
-  export type StaffAvgAggregateInputType = {
-    workLat?: true
-    workLon?: true
-  }
-
-  export type StaffSumAggregateInputType = {
-    workLat?: true
-    workLon?: true
-  }
 
   export type StaffMinAggregateInputType = {
     id?: true
@@ -1188,9 +1193,6 @@ export namespace Prisma {
     password?: true
     department?: true
     role?: true
-    workLat?: true
-    workLon?: true
-    workAddress?: true
   }
 
   export type StaffMaxAggregateInputType = {
@@ -1200,9 +1202,6 @@ export namespace Prisma {
     password?: true
     department?: true
     role?: true
-    workLat?: true
-    workLon?: true
-    workAddress?: true
   }
 
   export type StaffCountAggregateInputType = {
@@ -1212,9 +1211,6 @@ export namespace Prisma {
     password?: true
     department?: true
     role?: true
-    workLat?: true
-    workLon?: true
-    workAddress?: true
     _all?: true
   }
 
@@ -1256,18 +1252,6 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Select which fields to average
-    **/
-    _avg?: StaffAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: StaffSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
      * Select which fields to find the minimum value
     **/
     _min?: StaffMinAggregateInputType
@@ -1298,8 +1282,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: StaffCountAggregateInputType | true
-    _avg?: StaffAvgAggregateInputType
-    _sum?: StaffSumAggregateInputType
     _min?: StaffMinAggregateInputType
     _max?: StaffMaxAggregateInputType
   }
@@ -1311,12 +1293,7 @@ export namespace Prisma {
     password: string
     department: string
     role: $Enums.Role
-    workLat: number
-    workLon: number
-    workAddress: string
     _count: StaffCountAggregateOutputType | null
-    _avg: StaffAvgAggregateOutputType | null
-    _sum: StaffSumAggregateOutputType | null
     _min: StaffMinAggregateOutputType | null
     _max: StaffMaxAggregateOutputType | null
   }
@@ -1342,9 +1319,6 @@ export namespace Prisma {
     password?: boolean
     department?: boolean
     role?: boolean
-    workLat?: boolean
-    workLon?: boolean
-    workAddress?: boolean
     attendance?: boolean | Staff$attendanceArgs<ExtArgs>
     workLocations?: boolean | Staff$workLocationsArgs<ExtArgs>
     _count?: boolean | StaffCountOutputTypeDefaultArgs<ExtArgs>
@@ -1357,9 +1331,6 @@ export namespace Prisma {
     password?: boolean
     department?: boolean
     role?: boolean
-    workLat?: boolean
-    workLon?: boolean
-    workAddress?: boolean
   }, ExtArgs["result"]["staff"]>
 
   export type StaffSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1369,9 +1340,6 @@ export namespace Prisma {
     password?: boolean
     department?: boolean
     role?: boolean
-    workLat?: boolean
-    workLon?: boolean
-    workAddress?: boolean
   }, ExtArgs["result"]["staff"]>
 
   export type StaffSelectScalar = {
@@ -1381,12 +1349,9 @@ export namespace Prisma {
     password?: boolean
     department?: boolean
     role?: boolean
-    workLat?: boolean
-    workLon?: boolean
-    workAddress?: boolean
   }
 
-  export type StaffOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "department" | "role" | "workLat" | "workLon" | "workAddress", ExtArgs["result"]["staff"]>
+  export type StaffOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "department" | "role", ExtArgs["result"]["staff"]>
   export type StaffInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     attendance?: boolean | Staff$attendanceArgs<ExtArgs>
     workLocations?: boolean | Staff$workLocationsArgs<ExtArgs>
@@ -1408,9 +1373,6 @@ export namespace Prisma {
       password: string
       department: string
       role: $Enums.Role
-      workLat: number
-      workLon: number
-      workAddress: string
     }, ExtArgs["result"]["staff"]>
     composites: {}
   }
@@ -1842,9 +1804,6 @@ export namespace Prisma {
     readonly password: FieldRef<"Staff", 'String'>
     readonly department: FieldRef<"Staff", 'String'>
     readonly role: FieldRef<"Staff", 'Role'>
-    readonly workLat: FieldRef<"Staff", 'Float'>
-    readonly workLon: FieldRef<"Staff", 'Float'>
-    readonly workAddress: FieldRef<"Staff", 'String'>
   }
     
 
@@ -2041,6 +2000,11 @@ export namespace Prisma {
      * Skip the first `n` Staff.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Staff.
+     */
     distinct?: StaffScalarFieldEnum | StaffScalarFieldEnum[]
   }
 
@@ -3323,6 +3287,11 @@ export namespace Prisma {
      * Skip the first `n` Attendances.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Attendances.
+     */
     distinct?: AttendanceScalarFieldEnum | AttendanceScalarFieldEnum[]
   }
 
@@ -3565,7 +3534,6 @@ export namespace Prisma {
 
   export type WorkLocationMinAggregateOutputType = {
     id: string | null
-    userId: string | null
     name: string | null
     workLat: number | null
     workLon: number | null
@@ -3573,7 +3541,6 @@ export namespace Prisma {
 
   export type WorkLocationMaxAggregateOutputType = {
     id: string | null
-    userId: string | null
     name: string | null
     workLat: number | null
     workLon: number | null
@@ -3581,7 +3548,6 @@ export namespace Prisma {
 
   export type WorkLocationCountAggregateOutputType = {
     id: number
-    userId: number
     name: number
     workLat: number
     workLon: number
@@ -3601,7 +3567,6 @@ export namespace Prisma {
 
   export type WorkLocationMinAggregateInputType = {
     id?: true
-    userId?: true
     name?: true
     workLat?: true
     workLon?: true
@@ -3609,7 +3574,6 @@ export namespace Prisma {
 
   export type WorkLocationMaxAggregateInputType = {
     id?: true
-    userId?: true
     name?: true
     workLat?: true
     workLon?: true
@@ -3617,7 +3581,6 @@ export namespace Prisma {
 
   export type WorkLocationCountAggregateInputType = {
     id?: true
-    userId?: true
     name?: true
     workLat?: true
     workLon?: true
@@ -3712,7 +3675,6 @@ export namespace Prisma {
 
   export type WorkLocationGroupByOutputType = {
     id: string
-    userId: string
     name: string
     workLat: number
     workLon: number
@@ -3739,58 +3701,49 @@ export namespace Prisma {
 
   export type WorkLocationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    userId?: boolean
     name?: boolean
     workLat?: boolean
     workLon?: boolean
-    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    staff?: boolean | WorkLocation$staffArgs<ExtArgs>
+    _count?: boolean | WorkLocationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workLocation"]>
 
   export type WorkLocationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    userId?: boolean
     name?: boolean
     workLat?: boolean
     workLon?: boolean
-    staff?: boolean | StaffDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workLocation"]>
 
   export type WorkLocationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    userId?: boolean
     name?: boolean
     workLat?: boolean
     workLon?: boolean
-    staff?: boolean | StaffDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workLocation"]>
 
   export type WorkLocationSelectScalar = {
     id?: boolean
-    userId?: boolean
     name?: boolean
     workLat?: boolean
     workLon?: boolean
   }
 
-  export type WorkLocationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "workLat" | "workLon", ExtArgs["result"]["workLocation"]>
+  export type WorkLocationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "workLat" | "workLon", ExtArgs["result"]["workLocation"]>
   export type WorkLocationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    staff?: boolean | WorkLocation$staffArgs<ExtArgs>
+    _count?: boolean | WorkLocationCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type WorkLocationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    staff?: boolean | StaffDefaultArgs<ExtArgs>
-  }
-  export type WorkLocationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    staff?: boolean | StaffDefaultArgs<ExtArgs>
-  }
+  export type WorkLocationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type WorkLocationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $WorkLocationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "WorkLocation"
     objects: {
-      staff: Prisma.$StaffPayload<ExtArgs>
+      staff: Prisma.$StaffPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      userId: string
       name: string
       workLat: number
       workLon: number
@@ -4188,7 +4141,7 @@ export namespace Prisma {
    */
   export interface Prisma__WorkLocationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    staff<T extends StaffDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StaffDefaultArgs<ExtArgs>>): Prisma__StaffClient<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    staff<T extends WorkLocation$staffArgs<ExtArgs> = {}>(args?: Subset<T, WorkLocation$staffArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4219,7 +4172,6 @@ export namespace Prisma {
    */
   interface WorkLocationFieldRefs {
     readonly id: FieldRef<"WorkLocation", 'String'>
-    readonly userId: FieldRef<"WorkLocation", 'String'>
     readonly name: FieldRef<"WorkLocation", 'String'>
     readonly workLat: FieldRef<"WorkLocation", 'Float'>
     readonly workLon: FieldRef<"WorkLocation", 'Float'>
@@ -4419,6 +4371,11 @@ export namespace Prisma {
      * Skip the first `n` WorkLocations.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkLocations.
+     */
     distinct?: WorkLocationScalarFieldEnum | WorkLocationScalarFieldEnum[]
   }
 
@@ -4472,10 +4429,6 @@ export namespace Prisma {
      */
     data: WorkLocationCreateManyInput | WorkLocationCreateManyInput[]
     skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkLocationIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -4546,10 +4499,6 @@ export namespace Prisma {
      * Limit how many WorkLocations to update.
      */
     limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkLocationIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -4619,6 +4568,30 @@ export namespace Prisma {
   }
 
   /**
+   * WorkLocation.staff
+   */
+  export type WorkLocation$staffArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Staff
+     */
+    select?: StaffSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Staff
+     */
+    omit?: StaffOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffInclude<ExtArgs> | null
+    where?: StaffWhereInput
+    orderBy?: StaffOrderByWithRelationInput | StaffOrderByWithRelationInput[]
+    cursor?: StaffWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StaffScalarFieldEnum | StaffScalarFieldEnum[]
+  }
+
+  /**
    * WorkLocation without action
    */
   export type WorkLocationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4657,10 +4630,7 @@ export namespace Prisma {
     email: 'email',
     password: 'password',
     department: 'department',
-    role: 'role',
-    workLat: 'workLat',
-    workLon: 'workLon',
-    workAddress: 'workAddress'
+    role: 'role'
   };
 
   export type StaffScalarFieldEnum = (typeof StaffScalarFieldEnum)[keyof typeof StaffScalarFieldEnum]
@@ -4689,7 +4659,6 @@ export namespace Prisma {
 
   export const WorkLocationScalarFieldEnum: {
     id: 'id',
-    userId: 'userId',
     name: 'name',
     workLat: 'workLat',
     workLon: 'workLon'
@@ -4756,20 +4725,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Float'
-   */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float[]'
-   */
-  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
-
-
-  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -4780,6 +4735,20 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 
@@ -4824,9 +4793,6 @@ export namespace Prisma {
     password?: StringFilter<"Staff"> | string
     department?: StringFilter<"Staff"> | string
     role?: EnumRoleFilter<"Staff"> | $Enums.Role
-    workLat?: FloatFilter<"Staff"> | number
-    workLon?: FloatFilter<"Staff"> | number
-    workAddress?: StringFilter<"Staff"> | string
     attendance?: AttendanceListRelationFilter
     workLocations?: WorkLocationListRelationFilter
   }
@@ -4838,9 +4804,6 @@ export namespace Prisma {
     password?: SortOrder
     department?: SortOrder
     role?: SortOrder
-    workLat?: SortOrder
-    workLon?: SortOrder
-    workAddress?: SortOrder
     attendance?: AttendanceOrderByRelationAggregateInput
     workLocations?: WorkLocationOrderByRelationAggregateInput
   }
@@ -4855,9 +4818,6 @@ export namespace Prisma {
     password?: StringFilter<"Staff"> | string
     department?: StringFilter<"Staff"> | string
     role?: EnumRoleFilter<"Staff"> | $Enums.Role
-    workLat?: FloatFilter<"Staff"> | number
-    workLon?: FloatFilter<"Staff"> | number
-    workAddress?: StringFilter<"Staff"> | string
     attendance?: AttendanceListRelationFilter
     workLocations?: WorkLocationListRelationFilter
   }, "id" | "email">
@@ -4869,14 +4829,9 @@ export namespace Prisma {
     password?: SortOrder
     department?: SortOrder
     role?: SortOrder
-    workLat?: SortOrder
-    workLon?: SortOrder
-    workAddress?: SortOrder
     _count?: StaffCountOrderByAggregateInput
-    _avg?: StaffAvgOrderByAggregateInput
     _max?: StaffMaxOrderByAggregateInput
     _min?: StaffMinOrderByAggregateInput
-    _sum?: StaffSumOrderByAggregateInput
   }
 
   export type StaffScalarWhereWithAggregatesInput = {
@@ -4889,9 +4844,6 @@ export namespace Prisma {
     password?: StringWithAggregatesFilter<"Staff"> | string
     department?: StringWithAggregatesFilter<"Staff"> | string
     role?: EnumRoleWithAggregatesFilter<"Staff"> | $Enums.Role
-    workLat?: FloatWithAggregatesFilter<"Staff"> | number
-    workLon?: FloatWithAggregatesFilter<"Staff"> | number
-    workAddress?: StringWithAggregatesFilter<"Staff"> | string
   }
 
   export type AttendanceWhereInput = {
@@ -5006,20 +4958,18 @@ export namespace Prisma {
     OR?: WorkLocationWhereInput[]
     NOT?: WorkLocationWhereInput | WorkLocationWhereInput[]
     id?: StringFilter<"WorkLocation"> | string
-    userId?: StringFilter<"WorkLocation"> | string
     name?: StringFilter<"WorkLocation"> | string
     workLat?: FloatFilter<"WorkLocation"> | number
     workLon?: FloatFilter<"WorkLocation"> | number
-    staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
+    staff?: StaffListRelationFilter
   }
 
   export type WorkLocationOrderByWithRelationInput = {
     id?: SortOrder
-    userId?: SortOrder
     name?: SortOrder
     workLat?: SortOrder
     workLon?: SortOrder
-    staff?: StaffOrderByWithRelationInput
+    staff?: StaffOrderByRelationAggregateInput
   }
 
   export type WorkLocationWhereUniqueInput = Prisma.AtLeast<{
@@ -5027,16 +4977,14 @@ export namespace Prisma {
     AND?: WorkLocationWhereInput | WorkLocationWhereInput[]
     OR?: WorkLocationWhereInput[]
     NOT?: WorkLocationWhereInput | WorkLocationWhereInput[]
-    userId?: StringFilter<"WorkLocation"> | string
     name?: StringFilter<"WorkLocation"> | string
     workLat?: FloatFilter<"WorkLocation"> | number
     workLon?: FloatFilter<"WorkLocation"> | number
-    staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
+    staff?: StaffListRelationFilter
   }, "id">
 
   export type WorkLocationOrderByWithAggregationInput = {
     id?: SortOrder
-    userId?: SortOrder
     name?: SortOrder
     workLat?: SortOrder
     workLon?: SortOrder
@@ -5052,7 +5000,6 @@ export namespace Prisma {
     OR?: WorkLocationScalarWhereWithAggregatesInput[]
     NOT?: WorkLocationScalarWhereWithAggregatesInput | WorkLocationScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"WorkLocation"> | string
-    userId?: StringWithAggregatesFilter<"WorkLocation"> | string
     name?: StringWithAggregatesFilter<"WorkLocation"> | string
     workLat?: FloatWithAggregatesFilter<"WorkLocation"> | number
     workLon?: FloatWithAggregatesFilter<"WorkLocation"> | number
@@ -5065,9 +5012,6 @@ export namespace Prisma {
     password: string
     department: string
     role?: $Enums.Role
-    workLat: number
-    workLon: number
-    workAddress: string
     attendance?: AttendanceCreateNestedManyWithoutStaffInput
     workLocations?: WorkLocationCreateNestedManyWithoutStaffInput
   }
@@ -5079,9 +5023,6 @@ export namespace Prisma {
     password: string
     department: string
     role?: $Enums.Role
-    workLat: number
-    workLon: number
-    workAddress: string
     attendance?: AttendanceUncheckedCreateNestedManyWithoutStaffInput
     workLocations?: WorkLocationUncheckedCreateNestedManyWithoutStaffInput
   }
@@ -5093,9 +5034,6 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     department?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    workLat?: FloatFieldUpdateOperationsInput | number
-    workLon?: FloatFieldUpdateOperationsInput | number
-    workAddress?: StringFieldUpdateOperationsInput | string
     attendance?: AttendanceUpdateManyWithoutStaffNestedInput
     workLocations?: WorkLocationUpdateManyWithoutStaffNestedInput
   }
@@ -5107,9 +5045,6 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     department?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    workLat?: FloatFieldUpdateOperationsInput | number
-    workLon?: FloatFieldUpdateOperationsInput | number
-    workAddress?: StringFieldUpdateOperationsInput | string
     attendance?: AttendanceUncheckedUpdateManyWithoutStaffNestedInput
     workLocations?: WorkLocationUncheckedUpdateManyWithoutStaffNestedInput
   }
@@ -5121,9 +5056,6 @@ export namespace Prisma {
     password: string
     department: string
     role?: $Enums.Role
-    workLat: number
-    workLon: number
-    workAddress: string
   }
 
   export type StaffUpdateManyMutationInput = {
@@ -5133,9 +5065,6 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     department?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    workLat?: FloatFieldUpdateOperationsInput | number
-    workLon?: FloatFieldUpdateOperationsInput | number
-    workAddress?: StringFieldUpdateOperationsInput | string
   }
 
   export type StaffUncheckedUpdateManyInput = {
@@ -5145,9 +5074,6 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     department?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    workLat?: FloatFieldUpdateOperationsInput | number
-    workLon?: FloatFieldUpdateOperationsInput | number
-    workAddress?: StringFieldUpdateOperationsInput | string
   }
 
   export type AttendanceCreateInput = {
@@ -5280,15 +5206,15 @@ export namespace Prisma {
     name: string
     workLat: number
     workLon: number
-    staff: StaffCreateNestedOneWithoutWorkLocationsInput
+    staff?: StaffCreateNestedManyWithoutWorkLocationsInput
   }
 
   export type WorkLocationUncheckedCreateInput = {
     id?: string
-    userId: string
     name: string
     workLat: number
     workLon: number
+    staff?: StaffUncheckedCreateNestedManyWithoutWorkLocationsInput
   }
 
   export type WorkLocationUpdateInput = {
@@ -5296,20 +5222,19 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     workLat?: FloatFieldUpdateOperationsInput | number
     workLon?: FloatFieldUpdateOperationsInput | number
-    staff?: StaffUpdateOneRequiredWithoutWorkLocationsNestedInput
+    staff?: StaffUpdateManyWithoutWorkLocationsNestedInput
   }
 
   export type WorkLocationUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     workLat?: FloatFieldUpdateOperationsInput | number
     workLon?: FloatFieldUpdateOperationsInput | number
+    staff?: StaffUncheckedUpdateManyWithoutWorkLocationsNestedInput
   }
 
   export type WorkLocationCreateManyInput = {
     id?: string
-    userId: string
     name: string
     workLat: number
     workLon: number
@@ -5324,7 +5249,6 @@ export namespace Prisma {
 
   export type WorkLocationUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     workLat?: FloatFieldUpdateOperationsInput | number
     workLon?: FloatFieldUpdateOperationsInput | number
@@ -5350,17 +5274,6 @@ export namespace Prisma {
     in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
     notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
     not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
-  }
-
-  export type FloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type AttendanceListRelationFilter = {
@@ -5390,14 +5303,6 @@ export namespace Prisma {
     password?: SortOrder
     department?: SortOrder
     role?: SortOrder
-    workLat?: SortOrder
-    workLon?: SortOrder
-    workAddress?: SortOrder
-  }
-
-  export type StaffAvgOrderByAggregateInput = {
-    workLat?: SortOrder
-    workLon?: SortOrder
   }
 
   export type StaffMaxOrderByAggregateInput = {
@@ -5407,9 +5312,6 @@ export namespace Prisma {
     password?: SortOrder
     department?: SortOrder
     role?: SortOrder
-    workLat?: SortOrder
-    workLon?: SortOrder
-    workAddress?: SortOrder
   }
 
   export type StaffMinOrderByAggregateInput = {
@@ -5419,14 +5321,6 @@ export namespace Prisma {
     password?: SortOrder
     department?: SortOrder
     role?: SortOrder
-    workLat?: SortOrder
-    workLon?: SortOrder
-    workAddress?: SortOrder
-  }
-
-  export type StaffSumOrderByAggregateInput = {
-    workLat?: SortOrder
-    workLon?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -5457,22 +5351,6 @@ export namespace Prisma {
     _max?: NestedEnumRoleFilter<$PrismaModel>
   }
 
-  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
-  }
-
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -5482,6 +5360,17 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type EnumAttendanceTypeFilter<$PrismaModel = never> = {
@@ -5602,6 +5491,22 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
   export type EnumAttendanceTypeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.AttendanceType | EnumAttendanceTypeFieldRefInput<$PrismaModel>
     in?: $Enums.AttendanceType[] | ListEnumAttendanceTypeFieldRefInput<$PrismaModel>
@@ -5630,9 +5535,18 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type StaffListRelationFilter = {
+    every?: StaffWhereInput
+    some?: StaffWhereInput
+    none?: StaffWhereInput
+  }
+
+  export type StaffOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type WorkLocationCountOrderByAggregateInput = {
     id?: SortOrder
-    userId?: SortOrder
     name?: SortOrder
     workLat?: SortOrder
     workLon?: SortOrder
@@ -5645,7 +5559,6 @@ export namespace Prisma {
 
   export type WorkLocationMaxOrderByAggregateInput = {
     id?: SortOrder
-    userId?: SortOrder
     name?: SortOrder
     workLat?: SortOrder
     workLon?: SortOrder
@@ -5653,7 +5566,6 @@ export namespace Prisma {
 
   export type WorkLocationMinOrderByAggregateInput = {
     id?: SortOrder
-    userId?: SortOrder
     name?: SortOrder
     workLat?: SortOrder
     workLon?: SortOrder
@@ -5674,7 +5586,6 @@ export namespace Prisma {
   export type WorkLocationCreateNestedManyWithoutStaffInput = {
     create?: XOR<WorkLocationCreateWithoutStaffInput, WorkLocationUncheckedCreateWithoutStaffInput> | WorkLocationCreateWithoutStaffInput[] | WorkLocationUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: WorkLocationCreateOrConnectWithoutStaffInput | WorkLocationCreateOrConnectWithoutStaffInput[]
-    createMany?: WorkLocationCreateManyStaffInputEnvelope
     connect?: WorkLocationWhereUniqueInput | WorkLocationWhereUniqueInput[]
   }
 
@@ -5688,7 +5599,6 @@ export namespace Prisma {
   export type WorkLocationUncheckedCreateNestedManyWithoutStaffInput = {
     create?: XOR<WorkLocationCreateWithoutStaffInput, WorkLocationUncheckedCreateWithoutStaffInput> | WorkLocationCreateWithoutStaffInput[] | WorkLocationUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: WorkLocationCreateOrConnectWithoutStaffInput | WorkLocationCreateOrConnectWithoutStaffInput[]
-    createMany?: WorkLocationCreateManyStaffInputEnvelope
     connect?: WorkLocationWhereUniqueInput | WorkLocationWhereUniqueInput[]
   }
 
@@ -5698,14 +5608,6 @@ export namespace Prisma {
 
   export type EnumRoleFieldUpdateOperationsInput = {
     set?: $Enums.Role
-  }
-
-  export type FloatFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type AttendanceUpdateManyWithoutStaffNestedInput = {
@@ -5726,7 +5628,6 @@ export namespace Prisma {
     create?: XOR<WorkLocationCreateWithoutStaffInput, WorkLocationUncheckedCreateWithoutStaffInput> | WorkLocationCreateWithoutStaffInput[] | WorkLocationUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: WorkLocationCreateOrConnectWithoutStaffInput | WorkLocationCreateOrConnectWithoutStaffInput[]
     upsert?: WorkLocationUpsertWithWhereUniqueWithoutStaffInput | WorkLocationUpsertWithWhereUniqueWithoutStaffInput[]
-    createMany?: WorkLocationCreateManyStaffInputEnvelope
     set?: WorkLocationWhereUniqueInput | WorkLocationWhereUniqueInput[]
     disconnect?: WorkLocationWhereUniqueInput | WorkLocationWhereUniqueInput[]
     delete?: WorkLocationWhereUniqueInput | WorkLocationWhereUniqueInput[]
@@ -5754,7 +5655,6 @@ export namespace Prisma {
     create?: XOR<WorkLocationCreateWithoutStaffInput, WorkLocationUncheckedCreateWithoutStaffInput> | WorkLocationCreateWithoutStaffInput[] | WorkLocationUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: WorkLocationCreateOrConnectWithoutStaffInput | WorkLocationCreateOrConnectWithoutStaffInput[]
     upsert?: WorkLocationUpsertWithWhereUniqueWithoutStaffInput | WorkLocationUpsertWithWhereUniqueWithoutStaffInput[]
-    createMany?: WorkLocationCreateManyStaffInputEnvelope
     set?: WorkLocationWhereUniqueInput | WorkLocationWhereUniqueInput[]
     disconnect?: WorkLocationWhereUniqueInput | WorkLocationWhereUniqueInput[]
     delete?: WorkLocationWhereUniqueInput | WorkLocationWhereUniqueInput[]
@@ -5774,6 +5674,14 @@ export namespace Prisma {
     set?: Date | string
   }
 
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type EnumAttendanceTypeFieldUpdateOperationsInput = {
     set?: $Enums.AttendanceType
   }
@@ -5790,18 +5698,42 @@ export namespace Prisma {
     update?: XOR<XOR<StaffUpdateToOneWithWhereWithoutAttendanceInput, StaffUpdateWithoutAttendanceInput>, StaffUncheckedUpdateWithoutAttendanceInput>
   }
 
-  export type StaffCreateNestedOneWithoutWorkLocationsInput = {
-    create?: XOR<StaffCreateWithoutWorkLocationsInput, StaffUncheckedCreateWithoutWorkLocationsInput>
-    connectOrCreate?: StaffCreateOrConnectWithoutWorkLocationsInput
-    connect?: StaffWhereUniqueInput
+  export type StaffCreateNestedManyWithoutWorkLocationsInput = {
+    create?: XOR<StaffCreateWithoutWorkLocationsInput, StaffUncheckedCreateWithoutWorkLocationsInput> | StaffCreateWithoutWorkLocationsInput[] | StaffUncheckedCreateWithoutWorkLocationsInput[]
+    connectOrCreate?: StaffCreateOrConnectWithoutWorkLocationsInput | StaffCreateOrConnectWithoutWorkLocationsInput[]
+    connect?: StaffWhereUniqueInput | StaffWhereUniqueInput[]
   }
 
-  export type StaffUpdateOneRequiredWithoutWorkLocationsNestedInput = {
-    create?: XOR<StaffCreateWithoutWorkLocationsInput, StaffUncheckedCreateWithoutWorkLocationsInput>
-    connectOrCreate?: StaffCreateOrConnectWithoutWorkLocationsInput
-    upsert?: StaffUpsertWithoutWorkLocationsInput
-    connect?: StaffWhereUniqueInput
-    update?: XOR<XOR<StaffUpdateToOneWithWhereWithoutWorkLocationsInput, StaffUpdateWithoutWorkLocationsInput>, StaffUncheckedUpdateWithoutWorkLocationsInput>
+  export type StaffUncheckedCreateNestedManyWithoutWorkLocationsInput = {
+    create?: XOR<StaffCreateWithoutWorkLocationsInput, StaffUncheckedCreateWithoutWorkLocationsInput> | StaffCreateWithoutWorkLocationsInput[] | StaffUncheckedCreateWithoutWorkLocationsInput[]
+    connectOrCreate?: StaffCreateOrConnectWithoutWorkLocationsInput | StaffCreateOrConnectWithoutWorkLocationsInput[]
+    connect?: StaffWhereUniqueInput | StaffWhereUniqueInput[]
+  }
+
+  export type StaffUpdateManyWithoutWorkLocationsNestedInput = {
+    create?: XOR<StaffCreateWithoutWorkLocationsInput, StaffUncheckedCreateWithoutWorkLocationsInput> | StaffCreateWithoutWorkLocationsInput[] | StaffUncheckedCreateWithoutWorkLocationsInput[]
+    connectOrCreate?: StaffCreateOrConnectWithoutWorkLocationsInput | StaffCreateOrConnectWithoutWorkLocationsInput[]
+    upsert?: StaffUpsertWithWhereUniqueWithoutWorkLocationsInput | StaffUpsertWithWhereUniqueWithoutWorkLocationsInput[]
+    set?: StaffWhereUniqueInput | StaffWhereUniqueInput[]
+    disconnect?: StaffWhereUniqueInput | StaffWhereUniqueInput[]
+    delete?: StaffWhereUniqueInput | StaffWhereUniqueInput[]
+    connect?: StaffWhereUniqueInput | StaffWhereUniqueInput[]
+    update?: StaffUpdateWithWhereUniqueWithoutWorkLocationsInput | StaffUpdateWithWhereUniqueWithoutWorkLocationsInput[]
+    updateMany?: StaffUpdateManyWithWhereWithoutWorkLocationsInput | StaffUpdateManyWithWhereWithoutWorkLocationsInput[]
+    deleteMany?: StaffScalarWhereInput | StaffScalarWhereInput[]
+  }
+
+  export type StaffUncheckedUpdateManyWithoutWorkLocationsNestedInput = {
+    create?: XOR<StaffCreateWithoutWorkLocationsInput, StaffUncheckedCreateWithoutWorkLocationsInput> | StaffCreateWithoutWorkLocationsInput[] | StaffUncheckedCreateWithoutWorkLocationsInput[]
+    connectOrCreate?: StaffCreateOrConnectWithoutWorkLocationsInput | StaffCreateOrConnectWithoutWorkLocationsInput[]
+    upsert?: StaffUpsertWithWhereUniqueWithoutWorkLocationsInput | StaffUpsertWithWhereUniqueWithoutWorkLocationsInput[]
+    set?: StaffWhereUniqueInput | StaffWhereUniqueInput[]
+    disconnect?: StaffWhereUniqueInput | StaffWhereUniqueInput[]
+    delete?: StaffWhereUniqueInput | StaffWhereUniqueInput[]
+    connect?: StaffWhereUniqueInput | StaffWhereUniqueInput[]
+    update?: StaffUpdateWithWhereUniqueWithoutWorkLocationsInput | StaffUpdateWithWhereUniqueWithoutWorkLocationsInput[]
+    updateMany?: StaffUpdateManyWithWhereWithoutWorkLocationsInput | StaffUpdateManyWithWhereWithoutWorkLocationsInput[]
+    deleteMany?: StaffScalarWhereInput | StaffScalarWhereInput[]
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -5823,17 +5755,6 @@ export namespace Prisma {
     in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
     notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
     not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
-  }
-
-  export type NestedFloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
@@ -5874,22 +5795,6 @@ export namespace Prisma {
     _max?: NestedEnumRoleFilter<$PrismaModel>
   }
 
-  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
-  }
-
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -5899,6 +5804,17 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type NestedEnumAttendanceTypeFilter<$PrismaModel = never> = {
@@ -5934,6 +5850,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type NestedEnumAttendanceTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -6037,11 +5969,6 @@ export namespace Prisma {
     create: XOR<WorkLocationCreateWithoutStaffInput, WorkLocationUncheckedCreateWithoutStaffInput>
   }
 
-  export type WorkLocationCreateManyStaffInputEnvelope = {
-    data: WorkLocationCreateManyStaffInput | WorkLocationCreateManyStaffInput[]
-    skipDuplicates?: boolean
-  }
-
   export type AttendanceUpsertWithWhereUniqueWithoutStaffInput = {
     where: AttendanceWhereUniqueInput
     update: XOR<AttendanceUpdateWithoutStaffInput, AttendanceUncheckedUpdateWithoutStaffInput>
@@ -6100,7 +6027,6 @@ export namespace Prisma {
     OR?: WorkLocationScalarWhereInput[]
     NOT?: WorkLocationScalarWhereInput | WorkLocationScalarWhereInput[]
     id?: StringFilter<"WorkLocation"> | string
-    userId?: StringFilter<"WorkLocation"> | string
     name?: StringFilter<"WorkLocation"> | string
     workLat?: FloatFilter<"WorkLocation"> | number
     workLon?: FloatFilter<"WorkLocation"> | number
@@ -6113,9 +6039,6 @@ export namespace Prisma {
     password: string
     department: string
     role?: $Enums.Role
-    workLat: number
-    workLon: number
-    workAddress: string
     workLocations?: WorkLocationCreateNestedManyWithoutStaffInput
   }
 
@@ -6126,9 +6049,6 @@ export namespace Prisma {
     password: string
     department: string
     role?: $Enums.Role
-    workLat: number
-    workLon: number
-    workAddress: string
     workLocations?: WorkLocationUncheckedCreateNestedManyWithoutStaffInput
   }
 
@@ -6155,9 +6075,6 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     department?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    workLat?: FloatFieldUpdateOperationsInput | number
-    workLon?: FloatFieldUpdateOperationsInput | number
-    workAddress?: StringFieldUpdateOperationsInput | string
     workLocations?: WorkLocationUpdateManyWithoutStaffNestedInput
   }
 
@@ -6168,9 +6085,6 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     department?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    workLat?: FloatFieldUpdateOperationsInput | number
-    workLon?: FloatFieldUpdateOperationsInput | number
-    workAddress?: StringFieldUpdateOperationsInput | string
     workLocations?: WorkLocationUncheckedUpdateManyWithoutStaffNestedInput
   }
 
@@ -6181,9 +6095,6 @@ export namespace Prisma {
     password: string
     department: string
     role?: $Enums.Role
-    workLat: number
-    workLon: number
-    workAddress: string
     attendance?: AttendanceCreateNestedManyWithoutStaffInput
   }
 
@@ -6194,9 +6105,6 @@ export namespace Prisma {
     password: string
     department: string
     role?: $Enums.Role
-    workLat: number
-    workLon: number
-    workAddress: string
     attendance?: AttendanceUncheckedCreateNestedManyWithoutStaffInput
   }
 
@@ -6205,41 +6113,32 @@ export namespace Prisma {
     create: XOR<StaffCreateWithoutWorkLocationsInput, StaffUncheckedCreateWithoutWorkLocationsInput>
   }
 
-  export type StaffUpsertWithoutWorkLocationsInput = {
+  export type StaffUpsertWithWhereUniqueWithoutWorkLocationsInput = {
+    where: StaffWhereUniqueInput
     update: XOR<StaffUpdateWithoutWorkLocationsInput, StaffUncheckedUpdateWithoutWorkLocationsInput>
     create: XOR<StaffCreateWithoutWorkLocationsInput, StaffUncheckedCreateWithoutWorkLocationsInput>
-    where?: StaffWhereInput
   }
 
-  export type StaffUpdateToOneWithWhereWithoutWorkLocationsInput = {
-    where?: StaffWhereInput
+  export type StaffUpdateWithWhereUniqueWithoutWorkLocationsInput = {
+    where: StaffWhereUniqueInput
     data: XOR<StaffUpdateWithoutWorkLocationsInput, StaffUncheckedUpdateWithoutWorkLocationsInput>
   }
 
-  export type StaffUpdateWithoutWorkLocationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    department?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    workLat?: FloatFieldUpdateOperationsInput | number
-    workLon?: FloatFieldUpdateOperationsInput | number
-    workAddress?: StringFieldUpdateOperationsInput | string
-    attendance?: AttendanceUpdateManyWithoutStaffNestedInput
+  export type StaffUpdateManyWithWhereWithoutWorkLocationsInput = {
+    where: StaffScalarWhereInput
+    data: XOR<StaffUpdateManyMutationInput, StaffUncheckedUpdateManyWithoutWorkLocationsInput>
   }
 
-  export type StaffUncheckedUpdateWithoutWorkLocationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    department?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    workLat?: FloatFieldUpdateOperationsInput | number
-    workLon?: FloatFieldUpdateOperationsInput | number
-    workAddress?: StringFieldUpdateOperationsInput | string
-    attendance?: AttendanceUncheckedUpdateManyWithoutStaffNestedInput
+  export type StaffScalarWhereInput = {
+    AND?: StaffScalarWhereInput | StaffScalarWhereInput[]
+    OR?: StaffScalarWhereInput[]
+    NOT?: StaffScalarWhereInput | StaffScalarWhereInput[]
+    id?: StringFilter<"Staff"> | string
+    name?: StringFilter<"Staff"> | string
+    email?: StringFilter<"Staff"> | string
+    password?: StringFilter<"Staff"> | string
+    department?: StringFilter<"Staff"> | string
+    role?: EnumRoleFilter<"Staff"> | $Enums.Role
   }
 
   export type AttendanceCreateManyStaffInput = {
@@ -6257,13 +6156,6 @@ export namespace Prisma {
     attendanceType?: $Enums.AttendanceType
     workLocationId?: string | null
     workLocationName?: string | null
-  }
-
-  export type WorkLocationCreateManyStaffInput = {
-    id?: string
-    name: string
-    workLat: number
-    workLon: number
   }
 
   export type AttendanceUpdateWithoutStaffInput = {
@@ -6336,6 +6228,35 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     workLat?: FloatFieldUpdateOperationsInput | number
     workLon?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type StaffUpdateWithoutWorkLocationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    department?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    attendance?: AttendanceUpdateManyWithoutStaffNestedInput
+  }
+
+  export type StaffUncheckedUpdateWithoutWorkLocationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    department?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    attendance?: AttendanceUncheckedUpdateManyWithoutStaffNestedInput
+  }
+
+  export type StaffUncheckedUpdateManyWithoutWorkLocationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    department?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
   }
 
 

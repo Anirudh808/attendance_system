@@ -38,11 +38,12 @@ export async function GET(request) {
         email: staff.email,
         department: staff.department,
         role: staff.role,
-        workLocation: {
-          latitude: staff.workLat,
-          longitude: staff.workLon,
-          address: staff.workAddress,
-        },
+        workLocation: staff.workLocations[0] ? {
+          id: staff.workLocations[0].id,
+          latitude: staff.workLocations[0].workLat,
+          longitude: staff.workLocations[0].workLon,
+          address: staff.workLocations[0].name,
+        } : null,
         workLocations: staff.workLocations,
       },
     });

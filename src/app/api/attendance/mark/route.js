@@ -221,10 +221,7 @@ export async function POST(request) {
     }
 
     // Handle face mismatch (similarity score below safe threshold)
-    if (
-      !compareResult.is_same_person ||
-      compareResult.similarity_percentage < 40
-    ) {
+    if (compareResult.cosine_distance >= 5.0) {
       // Trigger the face mismatch email pipeline (awaited to keep Vercel lambda alive)
       await sendFaceMismatchEmail({
         staff,
